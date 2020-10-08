@@ -305,15 +305,15 @@ fi
 source $CONF/telegram.sh
 [[ ! -z $BOT_ID && ! -z $BOT_TOKEN ]] && BOT=1
 bot() {
-	[[ $BUILD -eq 1 && $BOT -eq 1 ]] && build_message "$@"
+	[[ $BUILD -eq 1 && $BOT -eq 1 ]] && build_message "$@" > /dev/null
 }
 bot_msg() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 ]] &&
-		tg_send_message --chat_id "$CHAT_ID" --text "$@" --reply_to_message_id "$CI_MESSAGE_ID"
+		tg_send_message --chat_id "$CHAT_ID" --text "$@" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
 }
 bot_doc() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]] &&
-		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID"
+		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
 }
 ########
 
