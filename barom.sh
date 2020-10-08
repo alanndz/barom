@@ -75,6 +75,9 @@ setup_env() {
 	BOT_ID="$(dnc tg_bot_id)"
 	BOT_TOKEN="$(dnc tg_bot_token)"
 
+	REPO_LINK="$(re repo_link)"
+	REPO_BRANCH="$(re repo_branch)"
+
 	SF_PATH="$(dnc sf_path)"
 	SF_USER="$(dnc sf_user)"
 	SF_PW="$(dnc sf_pw)"
@@ -273,8 +276,8 @@ BUILD=$BUILD
 RESYNC=$RESYNC
 CLEAN=$CLEAN
 
-REPO_LINK=$(re repo_link)
-REPO_MANIFEST=$(re repo_branch)
+REPO_LINK=$REPO_LINK
+REPO_MANIFEST=$REPO_BRANCH
 
 BOT_ID=$BOT_ID
 BOT_TOKEN=$BOT_TOKEN
@@ -315,14 +318,12 @@ bot_doc() {
 ########
 
 resync() {
-	local a="$(re repo_link)"
-	local b="$(re repo_branch)"
-	[[ -z $a ]] && err "MANIFEST Not set. Exiting"
-	[[ -z $b ]] && err "BRANCH Not Set. Exiting"
+	[[ -z $REPO_LINK ]] && err "MANIFEST Not set. Exiting"
+	[[ -z $REPO_BRANCH ]] && err "BRANCH Not Set. Exiting"
 
 	dbg "Initial repo ..."
 	[[ $BUILD -eq 1 ]] && bot "Initial repo ..."
-	repo init -u "$a" -b "$b"
+	repo init -u "$REPO_LINK" -b "$REPO_BRANCH"
 
 	dbg "Sync All repos ..."
 	[[ $BUILD -eq 1 ]] && bot "Syncing all repos ..."
