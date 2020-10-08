@@ -294,9 +294,11 @@ OUT=$O
 
 ## Telegram function
 
-[[ ! -f "$CONF/telegram.sh" ]] &&
-	dbg "Pulling telegram.sh" &&
+if [[ ! -f "$CONF/telegram.sh" ]]; then
+	dbg "Pulling telegram.sh"
 	wget -O "$CONF/telegram.sh" https://github.com/alanndz/barom/raw/main/telegram.sh &> /dev/null
+fi
+
 # import telegram.sh
 source $CONF/telegram.sh
 [[ ! -z $BOT_ID && ! -z $BOT_TOKEN ]] && BOT=1
