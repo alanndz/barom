@@ -446,7 +446,7 @@ bot "Uploading to sourceforge"
 {
 	/usr/bin/expect << EOF
 	set timeout 300
-	spawn scp "$FILEPATH" "$SF_USER"@frs.sourceforge.net:/home/frs/project/"$SF_PATH"/
+	spawn scp "$FILEPATH" $SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PATH/
 	expect {
 		*es/*o {
 			send "yes\r"; exp_continue
