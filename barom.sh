@@ -64,7 +64,6 @@ setup_env() {
 	local e="$(re rom)"
 	local f="$(re jobs)"
 	local cmd="$(re cmd)"
-	local _cmd=($cmd) # Split to array
 
 	XCACHE="${a:-$(pwd)/.ccache}"
 	LUNCH="${b:-lineage}"
@@ -73,7 +72,8 @@ setup_env() {
 	ROM="${e:-lineage}"
 	JOBS="${f:-$(nproc --all)}"
 	_CMD=("mka" "bacon") # Default COMMAND
-	CMD="${_cmd[@]:-${_CMD[@]}}"
+	CMD_="${cmd:-${_CMD[@]}}"
+	CMD=($CMD_)
 
 	BOT_ID="$(dnc tg_bot_id)"
 	BOT_TOKEN="$(dnc tg_bot_token)"
@@ -235,8 +235,9 @@ while getopts ":l:d:C:t:n:j:G:S:I:brcigsfRDhv" opt; do
 done
 shift $((OPTIND - 1))
 # writing every $@
-[[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]] &&
+if [[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]]; then
 	echo "$@" > $CONF/cmd
+fi
 
 # Setup repo manifest
 if [[ $SET_REPO -eq 1 ]]; then
@@ -391,8 +392,8 @@ mkfifo pipe 2> /dev/null
 tee "$LOG_TMP" < pipe &
 
 #
-bot "${@:-${CMD[@]}} -j$JOBS"
-dbg "${@:-${CMD[@]}} -j$JOBS"
+bot "Starting build"
+dbg "Starting build"
 
 # Tracking progrwss
 [[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
