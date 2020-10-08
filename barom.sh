@@ -365,8 +365,16 @@ setup_ccache
 [[ $ZIP -eq 1 ]] &&
 	dbg "Cleaning file zip" &&
 	rm -rf "$O/*zip"
-[[ $CLEAN -eq 1 ]] && make clean
-[[ $CLEAN -eq 2 ]] && make installclean
+if [[ $CLEAN -eq 1 ]]; then
+	bot "Cleaning out dir"
+	dbg "Cleaning out dir"
+	make clean
+	#rm -rf out # yes we do it
+elif [[ $CLEAN -eq 2 ]]; then
+	bot "make installclean"
+	dbg "make installclean"
+	make installclean
+fi
 
 bot "lunch $LUNCH_$DEVICE-$TYPE"
 
