@@ -64,6 +64,7 @@ setup_env() {
 	local e="$(re rom)"
 	local f="$(re jobs)"
 	local cmd="$(re cmd)"
+	local _cmd=($cmd) # Split to array
 
 	XCACHE="${a:-$(pwd)/.ccache}"
 	LUNCH="${b:-lineage}"
@@ -71,8 +72,8 @@ setup_env() {
 	TYPE="${d:-userdebug}"
 	ROM="${e:-lineage}"
 	JOBS="${f:-$(nproc --all)}"
-	CMD="${cmd:-mka bacon}"
-	#CMD=("mka" "bacon")
+	_CMD=("mka" "bacon") # Default COMMAND
+	CMD="${_cmd[@]:-${_CMD[@]}}"
 
 	BOT_ID="$(dnc tg_bot_id)"
 	BOT_TOKEN="$(dnc tg_bot_token)"
