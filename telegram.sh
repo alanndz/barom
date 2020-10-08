@@ -124,7 +124,7 @@ progress() {
 					dbg "BOTLOG: Percentage changed to ${NUMBER}%"
 					for i in ${TEXT[@]}; do
 						build_message "🛠️ ${i}... ${NUMBER}%"
-						sleep 1
+						sleep 30
 					done
 				fi
 				NUMBER_OLD=${NUMBER}
