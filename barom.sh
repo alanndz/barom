@@ -405,6 +405,7 @@ dbg "Starting build"
 
 # Tracking progrwss
 [[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
+progress_pid=$!
 
 # Start Building
 TIME_START=`date +%s`
@@ -412,6 +413,10 @@ TIME_START=`date +%s`
 
 # recording exit status
 retVal=$?
+
+# killing progress background
+kill $progress_pid
+wait $progress_pid 2> /dev/null
 
 #
 time_elapsed() {
