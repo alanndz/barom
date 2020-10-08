@@ -24,10 +24,10 @@ red() {
 }
 
 # Checking dependencies
-#for dep in env basename mkdir rm mkfifo jq expect ccache wget
-#do
-#	! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
-#done
+for dep in env basename mkdir rm mkfifo jq expect ccache wget
+do
+	! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
+done
 
 CONF=".`basename "$0"`-tools"
 [[ ! -d $CONF ]] && 
@@ -295,7 +295,7 @@ OUT=$O
 ## Telegram function
 
 [[ ! -f "$CONF/telegram.sh" ]] &&
-	dbg "Pulling telegram.sh"
+	dbg "Pulling telegram.sh" &&
 	wget -O "$CONF/telegram.sh" https://github.com/alanndz/barom/raw/main/telegram.sh &> /dev/null
 # import telegram.sh
 source $CONF/telegram.sh
