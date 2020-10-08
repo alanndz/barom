@@ -384,7 +384,11 @@ fi
 mkfifo pipe 2> /dev/null
 tee "$LOG_TMP" < pipe &
 
-# tracking progress
+#
+bot "${@:-${CMD[@]}} -j$JOBS"
+dbg "${@:-${CMD[@]}} -j$JOBS"
+
+# Tracking progrwss
 [[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
 
 # Start Building
