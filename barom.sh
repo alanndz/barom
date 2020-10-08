@@ -86,7 +86,9 @@ setup_env() {
 ############## END ##############
 # Reseting all configure
 reset() {
-	rm -rf $CONF/*
+	for i in xcache lunch device type rom jobs cmd; do
+		rm -rf $CONF/$i 2> /dev/null
+	done
 	dbg "Done reseting all configure"
 	# Re setup env
 	setup_env
