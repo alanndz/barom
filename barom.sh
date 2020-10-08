@@ -383,7 +383,7 @@ mkfifo pipe 2> /dev/null
 tee "$LOG_TMP" < pipe &
 
 # tracking progress
-#progress "$LOG_TMP" &
+[[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
 
 # Start Building
 TIME_START=`date +%s`
