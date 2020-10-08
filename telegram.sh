@@ -77,8 +77,10 @@ build_message() {
 	if [ "$CI_MESSAGE_ID" = "" ]; then
 CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Building ROM =========</b>
 <b>ROM Name:</b> <code>${ROM}</code>
-<b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Device:</b> <code>${DEVICE}</code>
+<b>Branch:</b> <code>${REPO_BRANCH}</code>
+<b>Lunch:</b> <code>$LUNCH</code>
+<b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD}</code>
 <b>Upload to SF:</b> <code>${SF_UPLOAD}</code>
 <b>Started at</b> <code>$DATE</code>
@@ -87,8 +89,10 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 	else
 tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "<b>========= Building ROM =========</b>
 <b>ROM Name:</b> <code>${ROM}</code>
-<b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Device:</b> <code>${DEVICE}</code>
+<b>Branch:</b> <code>${REPO_BRANCH}</code>
+<b>Lunch:</b> <code>$LUNCH</code>
+<b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD}</code>
 <b>Upload to SF:</b> <code>${SF_UPLOAD}</code>
 <b>Started at</b> <code>$DATE</code>
@@ -98,8 +102,8 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 }
 
 # Progress
-progress(){
-	local BUILDLOG="$1"
+progress() {
+	local BUILDLOG="$@"
 	dbg "BOTLOG: Build tracker process is running..."
 	sleep 10;
 
