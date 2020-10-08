@@ -63,6 +63,8 @@ setup_env() {
 	local d="$(re type)"
 	local e="$(re rom)"
 	local f="$(re jobs)"
+	local cmd="$(re cmd)"
+	local _cmd=($cmd) # Split to array
 
 	XCACHE="${a:-$(pwd)/.ccache}"
 	LUNCH="${b:-lineage}"
@@ -70,7 +72,8 @@ setup_env() {
 	TYPE="${d:-userdebug}"
 	ROM="${e:-lineage}"
 	JOBS="${f:-$(nproc --all)}"
-	CMD=("mka" "bacon") # Default COMMAND
+	_CMD=("mka" "bacon") # Default COMMAND
+	CMD="${_cmd[@]:-${_CMD[@]}}"
 
 	BOT_ID="$(dnc tg_bot_id)"
 	BOT_TOKEN="$(dnc tg_bot_token)"
@@ -86,7 +89,7 @@ setup_env() {
 ############## END ##############
 # Reseting all configure
 reset() {
-	for i in xcache lunch device type rom jobs; do
+	for i in xcache lunch device type rom jobs cmd; do
 		rm -rf $CONF/$i 2> /dev/null
 	done
 	dbg "Done reseting all configure"
@@ -231,6 +234,9 @@ while getopts ":l:d:C:t:n:j:G:S:I:brcigsfRDhv" opt; do
 	esac
 done
 shift $((OPTIND - 1))
+# writing every $@
+[[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]] &&
+	echo "$@" > $CONF/cmd
 
 # Setup repo manifest
 if [[ $SET_REPO -eq 1 ]]; then
