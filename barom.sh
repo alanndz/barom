@@ -141,7 +141,7 @@ Sourceforge Auto Upload:
 "
 }
 
-while getopts ":l:d:C:t:n:j:G:S:brcigsfRDhv" opt; do
+while getopts ":l:d:C:t:n:j:G:S:I:brcigsfRDhv" opt; do
 	case $opt in
 		l)
 			LUNCH="$OPTARG"
@@ -225,6 +225,8 @@ while getopts ":l:d:C:t:n:j:G:S:brcigsfRDhv" opt; do
 			exit 0
 			;;
 		*)
+			usage
+			exit 0
 			;;
 	esac
 done
