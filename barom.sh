@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 NAME="Barom (Bakar Rom)"
-VERSION="1.0"
+VERSION="1.1"
 
 dbg() {
 	echo -e "\e[92m[*] $@\e[39m"
@@ -271,7 +271,7 @@ fi
 
 debug_env() {
 	echo -n "
-XCACHE=$XCACHE
+CCACHE_DIR=$XCACHE
 LUNCH=$LUNCH
 DEVICE=$DEVICE
 TYPE=$TYPE
@@ -316,7 +316,7 @@ bot() {
 }
 bot_msg() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 ]] &&
-		tg_send_message --chat_id "$CHAT_ID" --text "$@" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
+		tg_send_message --chat_id "$CHAT_ID" --text "$@" --parse_mode "html" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
 }
 bot_doc() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]] &&
@@ -415,18 +415,23 @@ TIME_START=`date +%s`
 retVal=$?
 
 # killing progress background
-kill $progress_pid
+kill $progress_pid 2> /dev/null
 wait $progress_pid 2> /dev/null
 
-#
-time_elapsed() {
+# Time elapsed
+t_() {
 	echo "$(date -u --date @$((`date +%s` - $TIME_START)) +%H:%M:%S)"
 }
+
+# Split time elapsed
+H=$(t_ | cut -f1 -d":")
+M=$(t_ | cut -f2 -d":")
+S=$(t_ | cut -f3 -d":")
 
 # build failed
 if [[ $retVal -ne 0 ]]; then
 	bot "Build Failed ..."
-	bot_msg "Build Failed. Elapsed time: $(time_elapsed)"
+	bot_msg "Build Failed. Total time elapsed: $H hours $M minutes $S seconds"
 	cp "$LOG_TMP" "$LOG_OK"
 	bot_doc "$LOG_OK"
 	sed -n '/FAILED:/,//p' "$LOG_OK" &> "$LOG_TRIM"
@@ -436,21 +441,22 @@ fi
 
 # build success
 bot "Build success!"
-bot_msg "Build success. Elapsed time: $(time_elapsed)"
+bot_msg "Build success. Total time elapsed:  $H hours $M minutes $S seconds"
 cp "$LOG_TMP" "$LOG_OK"
 bot_doc "$LOG_OK"
 
 FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 
 [[ -f $FILEPATH ]] &&
 	bot "Build success. File stored in: $FILEPATH" &&
 	dbg "Build success. File stored in: $FILEPATH"
 
 if [[ $SF_UPLOAD -eq 1 && -f $FILEPATH && ! -z $SF_PATH && ! -z $SF_USER && ! -z $SF_PW ]]; then
-bot "Uploading to sourceforge"
+	bot "Uploading to sourceforge"
 {
 	/usr/bin/expect << EOF
-	set timeout 300
+	set timeout 600
 	spawn scp "$FILEPATH" $SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PATH/
 	expect {
 		*es/*o {
@@ -467,12 +473,13 @@ bot "Uploading to sourceforge"
 		}
 	}
 EOF
+}
 	ret=$?
 	[[ $ret -ne 0 ]] && bot "Upload to sourceforge failed!" && exit $ret
 	bot "Upload success!"
 	dbg "Upload success!"
 	sleep 5
-	#bot "Build success. File stored in: $FILEPATH"
+	bot "Uploaded on : https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
 else
 	[[ ! -f $FILEPATH ]] && red "[!] File not found"
 	[[ -z $SF_PATH ]] && red "[!] SF_PATH Not Set"
