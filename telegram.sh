@@ -115,17 +115,13 @@ progress() {
         # Get latest percentage
 		PERCENTAGE=$(cat $BUILDLOG | tail -n 1 | awk '{ print $2 }')
 		NUMBER=$(echo ${PERCENTAGE} | sed 's/[^0-9]*//g')
- 		TEXT=( Building bUilding buIlding buiLding builDing buildIng buildiNg buildinG ) 
 
         # Report percentage to the $CHAT_ID
 		if [ "${NUMBER}" != "" ]; then
 			if [ "${NUMBER}" -le  "99" ]; then
 				if [ "${NUMBER}" != "${NUMBER_OLD}" ] && [ "$NUMBER" != "" ] && ! cat $BUILDLOG | tail  -n 1 | grep "glob" > /dev/null && ! cat $BUILDLOG | tail  -n 1 | grep "including" > /dev/null && ! cat $BUILDLOG | tail  -n 1 | grep "soong" > /dev/null && ! cat $BUILDLOG | tail  -n 1 | grep "finishing" > /dev/null; then
 					dbg "BOTLOG: Percentage changed to ${NUMBER}%"
-					for i in ${TEXT[@]}; do
-						build_message "🛠️ ${i}... ${NUMBER}%"
-						sleep 30
-					done
+					build_message "Building ... ${NUMBER}%"
 				fi
 				NUMBER_OLD=${NUMBER}
 			fi
