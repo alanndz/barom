@@ -105,6 +105,7 @@ Usage: $(basename "$0") [OPTIONS] [COMMAND]
 
 Options:
   -l LUNCH_COMMAND	Lunch command (default: `grn $LUNCH`)
+  -L			Check lunch command, and exit
   -d DEVICE		Specify a device (default: `grn $DEVICE`)
   -t BUILD_TYPE		Build type (default: `grn $TYPE`)
   -n ROM_NAME		Rom Name (default: `grn $ROM`)
@@ -144,7 +145,7 @@ Sourceforge Auto Upload:
 "
 }
 
-while getopts ":l:d:C:t:n:j:G:S:I:brcigsfRDhv" opt; do
+while getopts ":l:d:C:t:n:j:G:S:I:bLrcigsfRDhv" opt; do
 	case $opt in
 		l)
 			LUNCH="$OPTARG"
@@ -188,6 +189,9 @@ while getopts ":l:d:C:t:n:j:G:S:I:brcigsfRDhv" opt; do
 			;;
 		b)
 			BUILD=1
+			;;
+		L)
+			LUNCH_CHECK=1
 			;;
 		r)
 			RESYNC=1
@@ -280,6 +284,7 @@ JOBS=$JOBS
 CMD="${@:-${CMD[@]}}"
 
 BUILD=$BUILD
+LUNCH_CHECK=$LUNCH_CHECK
 RESYNC=$RESYNC
 CLEAN=$CLEAN
 
@@ -376,24 +381,25 @@ elif [[ $CLEAN -eq 2 ]]; then
 	make installclean
 fi
 
-bot "lunch $LUNCH_$DEVICE-$TYPE"
+[[ $LUNCH_CHECK -eq 1 ]] &&
+	lunch "$LUNCH"_"$DEVICE"-"$TYPE" &&
+	exit $?
 
+bot "lunch $LUNCH_$DEVICE-$TYPE"
 # lunch command
 mkfifo pipo 2> /dev/null
 tee "out/lunch_error.log" < pipo &
 
 lunch "$LUNCH"_"$DEVICE"-"$TYPE" > pipo
+
 retVal=$?
 [[ $retVal -ne 0 ]] &&
 	bot "lunch command failed with status code $retVal" &&
 	bot_doc "out/lunch_error.log" &&
 	err "lunch command failed with status code $retVal . Exiting"
 
-if [[ $BUILD -ne 1 ]]; then
-	bot "lunch command done"
-	dbg "lunch command done"
-	exit 0
-fi
+bot "lunch command done"
+dbg "lunch command done"
 
 # taking log
 mkfifo pipe 2> /dev/null
@@ -403,7 +409,7 @@ tee "$LOG_TMP" < pipe &
 bot "Starting build"
 dbg "Starting build"
 
-# Tracking progrwss
+# Tracking progress
 [[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
 progress_pid=$!
 
