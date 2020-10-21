@@ -385,6 +385,9 @@ fi
 	lunch "$LUNCH"_"$DEVICE"-"$TYPE" &&
 	exit 0
 
+[[ $BUILD -ne 1 ]] &&
+	exit 0
+
 bot "lunch $LUNCH_$DEVICE-$TYPE"
 # lunch command
 mkfifo pipo 2> /dev/null
