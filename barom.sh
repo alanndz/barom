@@ -383,7 +383,7 @@ fi
 
 [[ $LUNCH_CHECK -eq 1 ]] &&
 	lunch "$LUNCH"_"$DEVICE"-"$TYPE" &&
-	exit $?
+	exit 0
 
 bot "lunch $LUNCH_$DEVICE-$TYPE"
 # lunch command
