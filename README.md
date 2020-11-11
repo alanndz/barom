@@ -9,7 +9,7 @@ Install barom di system:
 wget -O- https://git.io/JkItH | sh
 ```
 
-Sedangkan untuk manual bisa sepeeti ini:
+Sedangkan untuk manual bisa seperti ini:
 ```
 wget -O barom https://git.io/JUjwP
 ```
@@ -20,4 +20,11 @@ chmod +x barom
 Lalu eksekusi untuk membaca perintah-perintah di dalamnya
 ```
 ./barom -h
+```
+
+## Google Drive
+Bagi yang mau upload rom nya ke google drive, pertama perlu menginstall grive dulu.
+Untuk menginstallnya sangat mudah:
+```
+wget -O- https://git.io/JkIq8 | sh
 ```
