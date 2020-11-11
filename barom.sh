@@ -319,6 +319,10 @@ source $CONF/telegram.sh
 bot() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 ]] && build_message "$@" > /dev/null
 }
+dbot() {
+	dbg "$@"
+	bot "$@"
+}
 bot_msg() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 ]] &&
 		tg_send_message --chat_id "$CHAT_ID" --text "$@" --parse_mode "html" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
@@ -357,7 +361,7 @@ LOG_TRIM="out/$ROM-$DEVICE-${DATELOG}_trimmed.log"
 # let configure env from android source
 source build/envsetup.sh
 [[ $? -ne 0 ]] && err "source build/envsetup.sh Not found. Exiting"
-bot "Preparing before build ..."
+dbot "Preparing before build ..."
 
 setup_ccache() {
 	export CCACHE_EXEC=$(which ccache)
@@ -371,13 +375,11 @@ setup_ccache
 	dbg "Cleaning file zip" &&
 	rm -rf "$O/*zip"
 if [[ $CLEAN -eq 1 ]]; then
-	bot "Cleaning out dir"
-	dbg "Cleaning out dir"
+	dbot "Cleaning out dir"
 	make clean
 	#rm -rf out # yes we do it
 elif [[ $CLEAN -eq 2 ]]; then
-	bot "make installclean"
-	dbg "make installclean"
+	dbot "make installclean"
 	make installclean
 fi
 
@@ -388,7 +390,7 @@ fi
 [[ $BUILD -ne 1 ]] &&
 	exit 0
 
-bot "lunch $LUNCH_$DEVICE-$TYPE"
+dbot "lunch $LUNCH_$DEVICE-$TYPE"
 # lunch command
 mkfifo pipo 2> /dev/null
 tee "out/lunch_error.log" < pipo &
@@ -397,20 +399,18 @@ lunch "$LUNCH"_"$DEVICE"-"$TYPE" > pipo
 
 retVal=$?
 [[ $retVal -ne 0 ]] &&
-	bot "lunch command failed with status code $retVal" &&
+	dbot "lunch command failed with status code $retVal" &&
 	bot_doc "out/lunch_error.log" &&
 	err "lunch command failed with status code $retVal . Exiting"
 
-bot "lunch command done"
-dbg "lunch command done"
+dbot "lunch command done"
 
 # taking log
 mkfifo pipe 2> /dev/null
 tee "$LOG_TMP" < pipe &
 
 #
-bot "Starting build"
-dbg "Starting build"
+dbot "Starting build"
 
 # Tracking progress
 [[ $BOT -eq 1 ]] && progress "$LOG_TMP" &
@@ -439,7 +439,7 @@ S=$(t_ | cut -f3 -d":")
 
 # build failed
 if [[ $retVal -ne 0 ]]; then
-	bot "Build Failed ..."
+	dbot "Build Failed ..."
 	bot_msg "Build Failed. Total time elapsed: $H hours $M minutes $S seconds"
 	cp "$LOG_TMP" "$LOG_OK"
 	bot_doc "$LOG_OK"
@@ -449,7 +449,7 @@ if [[ $retVal -ne 0 ]]; then
 fi
 
 # build success
-bot "Build success!"
+dbot "Build success!"
 bot_msg "Build success. Total time elapsed:  $H hours $M minutes $S seconds"
 cp "$LOG_TMP" "$LOG_OK"
 bot_doc "$LOG_OK"
@@ -458,11 +458,10 @@ FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort 
 FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 
 [[ -f $FILEPATH ]] &&
-	bot "Build success. File stored in: $FILEPATH" &&
-	dbg "Build success. File stored in: $FILEPATH"
+	dbot "Build success. File stored in: $FILEPATH" &&
 
 if [[ $SF_UPLOAD -eq 1 && -f $FILEPATH && ! -z $SF_PATH && ! -z $SF_USER && ! -z $SF_PW ]]; then
-	bot "Uploading to sourceforge"
+	dbot "Uploading to sourceforge"
 {
 	/usr/bin/expect << EOF
 	set timeout 600
@@ -484,11 +483,9 @@ if [[ $SF_UPLOAD -eq 1 && -f $FILEPATH && ! -z $SF_PATH && ! -z $SF_USER && ! -z
 EOF
 }
 	ret=$?
-	[[ $ret -ne 0 ]] && bot "Upload to sourceforge failed!" && exit $ret
-	bot "Upload success!"
-	dbg "Upload success!"
-	sleep 5
-	bot "Uploaded on : https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
+	[[ $ret -ne 0 ]] && dbot "Upload to sourceforge failed!" && exit $ret
+	sleep 2
+	dbot "Uploaded on : https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
 fi
 
 exit 0
