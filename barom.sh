@@ -343,17 +343,18 @@ resync() {
 	[[ -z $REPO_LINK ]] && err "MANIFEST Not set. Exiting"
 	[[ -z $REPO_BRANCH ]] && err "BRANCH Not Set. Exiting"
 
-	dbg "Initial repo ..."
-	[[ $BUILD -eq 1 ]] && bot "Initial repo ..."
+	dbot "Initial repo ..."
 	repo init -u "$REPO_LINK" -b "$REPO_BRANCH"
+	[[ $? -ne 0 ]] &&
+		bot "Repo init failed!" &&
+		err "Repo init failed. Exiting"
 
-	dbg "Sync All repos ..."
-	[[ $BUILD -eq 1 ]] && bot "Syncing all repos ..."
+	dbot "Sync All repos ..."
 	repo sync -c --force-sync --no-tags --no-clone-bundle --optimized-fetch --prune
 	[[ $? -ne 0 ]] &&
-		[[ $BUILD -eq 1 ]] && bot "Repo Sync failes!" &&
+		bot "Repo sync failed!" &&
 		err "Repo sync failed. Exiting"
-	[[ $BUILD -eq 1 ]] && bot "Repo sync done!"
+	dbot "Repo sync done!"
 }
 [[ $RESYNC -eq 1 ]] && resync
 
