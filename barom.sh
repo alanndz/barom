@@ -489,12 +489,6 @@ EOF
 	dbg "Upload success!"
 	sleep 5
 	bot "Uploaded on : https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
-else
-	[[ ! -f $FILEPATH ]] && red "[!] File not found"
-	[[ -z $SF_PATH ]] && red "[!] SF_PATH Not Set"
-	[[ -z $SF_USER ]] && red "[!] SF_USER Not Set"
-	[[ -z $SF_PW ]] && red "[!] SF_PW Not Set"
-	exit 1
 fi
 
 exit 0
