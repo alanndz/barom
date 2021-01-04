@@ -350,7 +350,7 @@ resync() {
 		err "Repo init failed. Exiting"
 
 	dbot "Sync All repos ..."
-	repo sync -c --force-sync --no-tags --no-clone-bundle --optimized-fetch --prune
+	repo sync --force-sync --no-tags --no-clone-bundle
 	[[ $? -ne 0 ]] &&
 		bot "Repo sync failed!" &&
 		err "Repo sync failed. Exiting"
