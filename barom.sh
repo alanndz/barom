@@ -465,7 +465,7 @@ FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort 
 FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 
 [[ -f $FILEPATH ]] &&
-	dbot "Build success. File stored in: $FILEPATH" &&
+	dbot "Build success. File stored in: $FILEPATH"
 
 if [[ $SF_UPLOAD -eq 1 && -f $FILEPATH && ! -z $SF_PATH && ! -z $SF_USER && ! -z $SF_PW ]]; then
 	dbot "Uploading to sourceforge"
