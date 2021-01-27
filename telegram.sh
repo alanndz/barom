@@ -73,6 +73,16 @@ tg_send_document() {
 	telegram_main sendDocument POST_FILE "$@"
 }
 
+check_upload() {
+	if [ $SF_UPLOAD -eq 1 ]; then
+		echo "Sourceforge"
+	elif [ $GD_UPLOAD -eq 1 ]; then
+		echo "Gdrive"
+	else
+		echo "No upload"
+	fi
+}
+
 build_message() {
 	if [ "$CI_MESSAGE_ID" = "" ]; then
 CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Building ROM =========</b>
@@ -82,7 +92,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Lunch:</b> <code>$LUNCH</code>
 <b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD_}</code>
-<b>Upload to SF:</b> <code>${SF_UPLOAD}</code>
+<b>Upload:</b> <code>$(check_upload)</code>
 <b>Started at</b> <code>$DATE</code>
 
 <b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
@@ -94,7 +104,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 <b>Lunch:</b> <code>$LUNCH</code>
 <b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD_}</code>
-<b>Upload to SF:</b> <code>${SF_UPLOAD}</code>
+<b>Upload:</b> <code>$(check_upload)</code>
 <b>Started at</b> <code>$DATE</code>
 
 <b>Status:</b> $1" --parse_mode "html" #&> /dev/null
