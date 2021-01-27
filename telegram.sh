@@ -91,7 +91,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$LUNCH</code>
 <b>Type:</b> <code>$TYPE</code>
-<b>Command:</b> <code>${CMD_}</code>
+<b>Command:</b> <code>$(re cmd)</code>
 <b>Upload:</b> <code>$(check_upload)</code>
 <b>Started at</b> <code>$(uname -a)</code>
 
@@ -103,7 +103,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$LUNCH</code>
 <b>Type:</b> <code>$TYPE</code>
-<b>Command:</b> <code>${CMD_}</code>
+<b>Command:</b> <code>$(re cmd)</code>
 <b>Upload:</b> <code>$(check_upload)</code>
 <b>Started at</b> <code>$(uname -a)</code>
 
