@@ -93,7 +93,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD_}</code>
 <b>Upload:</b> <code>$(check_upload)</code>
-<b>Started at</b> <code>$DATE</code>
+<b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
 	else
@@ -105,7 +105,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 <b>Type:</b> <code>$TYPE</code>
 <b>Command:</b> <code>${CMD_}</code>
 <b>Upload:</b> <code>$(check_upload)</code>
-<b>Started at</b> <code>$DATE</code>
+<b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" #&> /dev/null
 	fi
