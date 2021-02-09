@@ -74,9 +74,9 @@ tg_send_document() {
 }
 
 check_upload() {
-	if [ $SF_UPLOAD -eq 1 ]; then
+	if [[ $SF_UPLOAD -eq 1 ]]; then
 		echo "Sourceforge"
-	elif [ $GD_UPLOAD -eq 1 ]; then
+	elif [[ $GD_UPLOAD -eq 1 ]]; then
 		echo "Gdrive"
 	else
 		echo "No upload"
