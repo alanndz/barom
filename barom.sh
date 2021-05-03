@@ -55,7 +55,6 @@ dnc() {
 	echo "$ret"
 }
 updater() {
-	rm -rf "$CONF/telegram.sh"
 	wget -O /tmp/barom https://git.io/JUjwP
 	chmod +x /tmp/barom
 	sudo install /tmp/barom /usr/local/bin/barom
@@ -372,7 +371,7 @@ OUT=$O
 ### All Configures Done ###
 
 ## Telegram function
-
+rm -rf "$CONF/telegram.sh"
 if [[ ! -f "$CONF/telegram.sh" ]]; then
 	dbg "Pulling telegram.sh"
 	wget -O "$CONF/telegram.sh" https://github.com/alanndz/barom/raw/main/telegram.sh &> /dev/null
