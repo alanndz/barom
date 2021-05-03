@@ -169,4 +169,9 @@ build_success() {
 	"<b>Filename:</b> <code>$4</code>" \
 	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
 }
-
+uploader_msg() {
+	bot_msg \
+	"<b>========== Uploader ==========</b>" \
+	"<b>Filename:</b> <code>$1</code>" \
+	"<b>Link:</b> $2"
+}

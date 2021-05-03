@@ -527,14 +527,14 @@ EOF
 	ret=$?
 	[[ $ret -ne 0 ]] && dbot "Upload to sourceforge failed!" && exit $ret
 	sleep 2
-	dbot "Uploaded on : https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
+	uploader_msg "$FILENAME" "https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
 fi
 
 if [[ $GD_UPLOAD -eq 1 && -f $FILEPATH ]]; then
 	! command -v "gdrive" &> /dev/null && dbot "Failed upload to gdrive, missing packages gdrive" && err "Unable to locate dependency gdrive. Exiting."
 	GD=$(gdrive upload --share $FILEPATH)
 	link=$(echo "$GD" | grep "https://" | cut -d" " -f7)
-	dbot "Uploaded on : $link"
+	uploader_msg "$FILENAME" "$link"
 fi
 
 exit 0
