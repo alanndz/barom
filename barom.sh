@@ -54,7 +54,13 @@ dnc() {
 	fi
 	echo "$ret"
 }
-
+updater() {
+	rm -rf "$CONF/telegram.sh"
+	wget -O /tmp/barom https://git.io/JUjwP
+	chmod +x /tmp/barom
+	sudo install /tmp/barom /usr/local/bin/barom
+	exit 0
+}
 ###### Default Environment ######
 setup_env() {
 	local a="$(re xcache)"
@@ -142,6 +148,9 @@ Sourceforge Auto Upload:
 
 Google Drive auto upload:
   -o			Upload to gdrive, before upload you must have gdrive and login in 
+
+Updater:
+  -u|--update		Update barom
 
 `red [!]` All configure will be auto save in `grn $CONF`
 "
@@ -273,6 +282,9 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-h|--help|help)
 			usage 0
+			;;
+		-u|--update)
+			updater
 			;;
 		-v|--version)
 			echo "$NAME $VERSION"
