@@ -447,7 +447,7 @@ fi
 [[ $BUILD -ne 1 ]] &&
 	exit 0
 
-dbot "lunch $LUNCH_$DEVICE-$TYPE"
+dbot "lunch ${LUNCH}_${DEVICE}-${TYPE}"
 # lunch command
 mkfifo pipo 2> /dev/null
 tee "out/lunch_error.log" < pipo &
