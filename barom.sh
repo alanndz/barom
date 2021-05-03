@@ -304,7 +304,7 @@ done
 set -- "${POSITIONAL[@]}"
 
 # writing every $@
-if [[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]]; then
+if [[ ! -z "$@" ]]; then
 	echo "$@" > $CONF/cmd
 fi
 
