@@ -3,8 +3,8 @@
 # Copyright (C) 2019-2020 alanndz <alanmahmud0@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-NAME="Barom (Bakar Rom)"
-VERSION="1.2"
+NAME="Barom"
+VERSION="1.5"
 
 dbg() {
 	echo -e "\e[92m[*] $@\e[39m"
