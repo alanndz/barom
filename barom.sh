@@ -118,8 +118,7 @@ Options:
   -j JOBS		Jobs (default: `grn $JOBS`)
   -- COMMAND		Custom command (default: `grn ${CMD[@]}`)
   -b			Let start build
-  -c			Cleaning out dir (make clean)
-  -i			make installclean
+  -c Option		Clean (option: full, clean, dirty, device)
   -R			Reset, it will delete `grn $CONF/` files
   -D			Print debug environment, be carefull, it will pritn your credential's too
   -h			Show usage
@@ -136,6 +135,12 @@ Ccache:
 Resync:
   -I MANIFEST BRANCH	Setup repo manifest
   -r			Re syncing all repos
+
+-c|--clean options:
+  full			make clobber and make clean
+  dirty			make installclean
+  clean			make clean
+  device		make deviceclean
 
 Telegram BotLog:
   -G BOT_ID BOT_TOKEN	Set Bot id and Bot token
@@ -251,10 +256,8 @@ while [[ $# -gt 0 ]]; do
 			RESYNC=1
 			;;
 		-c|--clean)
-			CLEAN=1
-			;;
-		-i|--install-clean)
-			CLEAN=2
+			shift
+			CLEAN="$1"
 			;;
 		-g|--reset-bot)
 			[[ ! -f $CONF/tg_bot_id ]] && dbg "Credentials Not Exist" && exit 0
@@ -426,16 +429,19 @@ setup_ccache() {
 }
 setup_ccache
 
-[[ $ZIP -eq 1 ]] &&
-	dbg "Cleaning file zip" &&
-	rm -rf "$O/*zip"
-if [[ $CLEAN -eq 1 ]]; then
-	dbot "Cleaning out dir"
+if [[ "$CLEAN" == "full" ]]; then
+	dbot "Full clean"
+	make clobber
 	make clean
-	#rm -rf out # yes we do it
-elif [[ $CLEAN -eq 2 ]]; then
-	dbot "make installclean"
+elif [[ "$CLEAN" == "clean" ]]; then
+	dbot "Make Clean"
+	make clean
+elif [[ "$CLEAN" == "dirty" ]]; then
+	dbot "Dirty Clean"
 	make installclean
+elif [[ "$CLEAN" == "device" ]]; then
+	dbot "Device Clean"
+	make deviceclean
 fi
 
 [[ $LUNCH_CHECK -eq 1 ]] &&
