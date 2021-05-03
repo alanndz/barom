@@ -143,107 +143,156 @@ Sourceforge Auto Upload:
 Google Drive auto upload:
   -o			Upload to gdrive, before upload you must have gdrive and login in 
 
-`red [!]` For command `grn -I, -G, -S` must execute one by one. Dont execute with other command or will crash/error
 `red [!]` All configure will be auto save in `grn $CONF`
 "
+
+  if [ -n "$1" ]; then
+    exit "$1"
+  fi
 }
 
-while getopts ":l:d:C:t:n:j:G:S:I:bLrcigsfoRDhv" opt; do
-	case $opt in
-		l)
-			LUNCH="$OPTARG"
+invalid() {
+	echo "ERROR: Unrecognized argument: $1" >&2
+	usage 1
+}
+
+# Pre-process options to:
+# - expand -xyz into -x -y -z
+# - expand --longopt=arg into --longopt arg
+ARGV=()
+END_OF_OPT=
+while [[ $# -gt 0 ]]; do
+	arg="$1"; shift
+	case "${END_OF_OPT}${arg}" in
+		--) ARGV+=("$arg"); END_OF_OPT=1 ;;
+		--*=*)ARGV+=("${arg%%=*}" "${arg#*=}") ;;
+		--*) ARGV+=("$arg"); END_OF_OPT=1 ;;
+		-*) for i in $(seq 2 ${#arg}); do ARGV+=("-${arg:i-1:1}"); done ;;
+		*) ARGV+=("$arg") ;;
+	esac
+done
+
+# Apply pre-processed options
+set -- "${ARGV[@]}"
+
+# Parse options
+END_OF_OPT=
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+	case "${END_OF_OPT}${1}" in
+		-l|--lunch)
+			shift
+			LUNCH="$1"
 			wr lunch $LUNCH
 			;;
-		d)
-			DEVICE="$OPTARG"
+		-d|--device)
+			shift
+			DEVICE="$1"
 			wr device $DEVICE
 			;;
-		C)
-			XCACHE="$OPTARG"
+		-C|--ccache)
+			shift
+			XCACHE="$1"
 			wr xcache $XCACHE
 			;;
-		t)
-			TYPE="$OPTARG"
+		-t|--type)
+			shift
+			TYPE="$1"
 			wr type $TYPE
 			;;
-		n)
-			ROM="$OPTARG"
+		-n|--name)
+			shift
+			ROM="$1"
 			wr rom $ROM
 			;;
-		j)
-			JOBS="$OPTARG"
+		-j|--jobs)
+			shift
+			JOBS="$1"
 			wr jobs $JOBS
 			;;
-		G)
+		-G|--setup-bot)
+			shift
 			SET_BOT=1
-			BOT_ID="$2"
-			BOT_TOKEN="$3"
+			BOT_ID="$1"
+			BOT_TOKEN="$2"
+			shift
 			;;
-		S)
+		-S|--setup-sf)
+			shift
 			SET_SF=1
-			SF_PATH="$2"
-			SF_USER="$3"
-			SF_PW="$4"
+			SF_PATH="$1"
+			SF_USER="$2"
+			SF_PW="$3"
+			shift; shift
 			;;
-		I)
+		-I|--init|init)
+			shift
 			SET_REPO=1
-			REPO_LINK="$2"
-			REPO_BRANCH="$3"
+			REPO_LINK="$1"
+			REPO_BRANCH="$2"
+			shift
 			;;
-		b)
+		-b|--build)
 			BUILD=1
 			;;
-		L)
+		-L|--check-lunch)
 			LUNCH_CHECK=1
 			;;
-		r)
+		-r|--resync)
 			RESYNC=1
 			;;
-		c)
+		-c|--clean)
 			CLEAN=1
 			;;
-		i)
+		-i|--install-clean)
 			CLEAN=2
 			;;
-		g)
+		-g|--reset-bot)
 			[[ ! -f $CONF/tg_bot_id ]] && dbg "Credentials Not Exist" && exit 0
 			rm -rf $CONF/tg_bot_*
 			dbg "Done delete Credentials"
 			exit 0
 			;;
-		s)
+		-s|--reset-sf)
 			[[ ! -f $CONF/sf_path ]] && dbg "Credentials Not Exist" && exit 0
 			rm -rf $CONF/sf_*
 			dbg "Done delete Credentials"
 			exit 0
 			;;
-		f)
+		-f|--upload-sf)
 			SF_UPLOAD=1
 			;;
-		o)
+		-o|--upload-gd)
 			GD_UPLOAD=1
 			;;
-		R)
+		-R|--reset)
 			reset
 			;;
-		D)
+		-D|--debug)
 			DEBUG=1
 			;;
-		h)
-			usage
-			exit 0
+		-h|--help|help)
+			usage 0
 			;;
-		v)
+		-v|--version)
 			echo "$NAME $VERSION"
 			exit 0
 			;;
+		--)
+			END_OF_OPT=1 ;;
+		-*)
+			invalid "$1" ;;
 		*)
-			usage
-			exit 0
-			;;
+			POSITIONAL+=("$1") ;;
 	esac
+	shift
 done
-shift $((OPTIND - 1))
+
+# Restore positional parameters
+set -- "${POSITIONAL[@]}"
+
+echo "$@"
+
 # writing every $@
 if [[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]]; then
 	echo "$@" > $CONF/cmd
@@ -256,7 +305,6 @@ if [[ $SET_REPO -eq 1 ]]; then
 	wr repo_link $REPO_LINK
 	wr repo_branch $REPO_BRANCH
 	dbg "Setup repo manifest done"
-	exit 0
 fi
 # Setup Telegram BotLog
 if [[ $SET_BOT -eq 1 ]]; then
@@ -265,7 +313,6 @@ if [[ $SET_BOT -eq 1 ]]; then
 	wr tg_bot_id "$(openssl enc -base64 <<< $BOT_ID)"
 	wr tg_bot_token "$(openssl enc -base64 <<< $BOT_TOKEN)"
 	dbg "Setup Telegram BotLog Done"
-	exit 0
 fi
 # Setup Sorceforge Credentials
 if [[ $SET_SF -eq 1 ]]; then
@@ -276,7 +323,6 @@ if [[ $SET_SF -eq 1 ]]; then
 	wr sf_user "$(openssl enc -base64 <<< $SF_USER)"
 	wr sf_pw "$(openssl enc -base64 <<< $SF_PW)"
 	dbg "Setup Sourceforge Credential's Done"
-	exit 0
 fi
 
 debug_env() {
