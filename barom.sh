@@ -303,8 +303,6 @@ done
 # Restore positional parameters
 set -- "${POSITIONAL[@]}"
 
-echo "$@"
-
 # writing every $@
 if [[ ! -z "$@" && $SET_BOT -ne 1 && $SET_SF -ne 1 && $SET_REPO -ne 1 ]]; then
 	echo "$@" > $CONF/cmd
