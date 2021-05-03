@@ -366,26 +366,14 @@ if [[ ! -f "$CONF/telegram.sh" ]]; then
 fi
 
 # import telegram.sh
-source $CONF/telegram.sh
 [[ ! -z $BOT_ID && ! -z $BOT_TOKEN ]] && BOT=1
+source $CONF/telegram.sh
 bot() {
 	[[ $BUILD -eq 1 && $BOT -eq 1 ]] && build_message "$@" > /dev/null
 }
 dbot() {
 	dbg "$@"
 	bot "$@"
-}
-bot_msg() {
-	[[ $BUILD -eq 1 && $BOT -eq 1 ]] &&
-		tg_send_message --chat_id "$CHAT_ID" --parse_mode "html" --reply_to_message_id "$CI_MESSAGE_ID" --text "$(
-			for POST in "${@}"; do
-				echo "${POST}"
-			done
-		)" &> /dev/null
-}
-bot_doc() {
-	[[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]] &&
-		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
 }
 ########
 
