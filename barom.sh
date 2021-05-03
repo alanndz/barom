@@ -157,7 +157,7 @@ invalid() {
 }
 
 # Pre-process options to:
-# - expand -xyz into -x -y -z
+# TODO: - expand -xyz into -x -y -z
 # - expand --longopt=arg into --longopt arg
 ARGV=()
 END_OF_OPT=
@@ -167,7 +167,7 @@ while [[ $# -gt 0 ]]; do
 		--) ARGV+=("$arg"); END_OF_OPT=1 ;;
 		--*=*)ARGV+=("${arg%%=*}" "${arg#*=}") ;;
 		--*) ARGV+=("$arg"); END_OF_OPT=1 ;;
-		-*) for i in $(seq 2 ${#arg}); do ARGV+=("-${arg:i-1:1}"); done ;;
+#		-*) for i in $(seq 2 ${#arg}); do ARGV+=("-${arg:i-1:1}"); done ;;
 		*) ARGV+=("$arg") ;;
 	esac
 done
@@ -280,8 +280,8 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--)
 			END_OF_OPT=1 ;;
-		-*)
-			invalid "$1" ;;
+#		-*)
+#			invalid "$1" ;;
 		*)
 			POSITIONAL+=("$1") ;;
 	esac
