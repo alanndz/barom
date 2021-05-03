@@ -485,7 +485,7 @@ S=$(t_ | cut -f3 -d":")
 # build failed
 if [[ $retVal -ne 0 ]]; then
 	dbot "Build Failed ..."
-	bot_msg "Build Failed. Total time elapsed: $H hours $M minutes $S seconds"
+	build_fail $H $M $S
 	cp "$LOG_TMP" "$LOG_OK"
 	bot_doc "$LOG_OK"
 	sed -n '/FAILED:/,//p' "$LOG_OK" &> "$LOG_TRIM"
@@ -494,16 +494,13 @@ if [[ $retVal -ne 0 ]]; then
 fi
 
 # build success
-dbot "Build success!"
-bot_msg "Build success. Total time elapsed:  $H hours $M minutes $S seconds"
-cp "$LOG_TMP" "$LOG_OK"
-bot_doc "$LOG_OK"
-
 FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
 FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 
-[[ -f $FILEPATH ]] &&
-	dbot "Build success. File stored in: $FILEPATH"
+dbot "Build success!"
+build_success $H $M $S $FILENAME
+cp "$LOG_TMP" "$LOG_OK"
+bot_doc "$LOG_OK"
 
 if [[ $SF_UPLOAD -eq 1 && -f $FILEPATH && ! -z $SF_PATH && ! -z $SF_USER && ! -z $SF_PW ]]; then
 	dbot "Uploading to sourceforge"

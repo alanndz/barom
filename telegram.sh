@@ -157,3 +157,16 @@ progress() {
 	done
 	return 0
 }
+
+build_fail() {
+	bot_msg \
+	"<b>====== Build ROM Failed ======</b>" \
+	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
+}
+build_success() {
+	bot_msg \
+	"<b>====== Build ROM Success ======</b>" \
+	"<b>Filename:</b> <code>$4</code>" \
+	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
+}
+
