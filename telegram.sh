@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2019-2020 alanndz <alanmahmud0@gmail.com>
+# Copyright (C) 2019-2021 alanndz <alanmahmud0@gmail.com>
 # Copyright (C) 2020 @KryPtoN
 # SPDX-License-Identifier: GPL-3.0-or-later
 
