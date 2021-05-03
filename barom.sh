@@ -485,7 +485,7 @@ S=$(t_ | cut -f3 -d":")
 # build failed
 if [[ $retVal -ne 0 ]]; then
 	dbot "Build Failed ..."
-	build_fail $H $M $S
+	build_fail "$H" "$M" "$S"
 	cp "$LOG_TMP" "$LOG_OK"
 	bot_doc "$LOG_OK"
 	sed -n '/FAILED:/,//p' "$LOG_OK" &> "$LOG_TRIM"
@@ -499,7 +499,7 @@ FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 FILESUM=$(md5sum "$FILEPATH")
 
 dbot "Build success!"
-build_success $H $M $S $FILENAME $FILESUM
+build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM"
 cp "$LOG_TMP" "$LOG_OK"
 bot_doc "$LOG_OK"
 
