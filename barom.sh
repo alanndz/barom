@@ -511,7 +511,7 @@ fi
 # build success
 FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
 FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
-FILESUM=$(md5sum "$FILEPATH")
+FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 
 dbot "Build success!"
 build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM"
