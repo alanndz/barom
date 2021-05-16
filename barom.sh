@@ -555,4 +555,8 @@ if [[ $GD_UPLOAD -eq 1 && -f $FILEPATH ]]; then
 	uploader_msg "$FILENAME" "$link" "$FILESUM"
 fi
 
+rm -f $LOG_TMP
+rm -f $LOG_OK
+rm -f $LOG_TRIM
+
 exit 0
