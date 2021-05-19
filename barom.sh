@@ -581,6 +581,6 @@ fi
 rm -f $LOG_TMP
 rm -f $LOG_OK
 rm -f $LOG_TRIM
-rm -r out/tmpzip
+rm -r out/tmpzip 2> /dev/null
 
 exit 0
