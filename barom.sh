@@ -6,6 +6,8 @@
 NAME="Barom"
 VERSION="1.5"
 
+cwd=$(pwd)
+
 dbg() {
 	echo -e "\e[92m[*] $@\e[39m"
 }
@@ -153,6 +155,10 @@ Sourceforge Auto Upload:
 Google Drive auto upload:
   -o			Upload to gdrive, before upload you must have gdrive and login in 
 
+Apk ziping and send:
+  When use custom build command like make Settings, jist build Settings.apk only. So, use this argument for detect and sending to telegram or gdrive or sourceforge
+  -a|--apk		Detect file .apk and send to telegram or gdrive or sourceforge
+
 Updater:
   -u|--update		Update barom
 
@@ -275,6 +281,9 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-o|--upload-gd)
 			GD_UPLOAD=1
+			;;
+		-a|--apk)
+			APK=1
 			;;
 		-R|--reset)
 			reset
@@ -509,8 +518,18 @@ if [[ $retVal -ne 0 ]]; then
 fi
 
 # build success
-FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
-FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
+if [[ $APK -eq 1 ]]; then
+	FILENAME=$(echo "`re cmd`.apk" | cut -f2 -d" ")
+	mkdir -p out/tmpzip
+	cp $(find "$O" -type f -name "${FILENAME}" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") out/tmpzip/
+	cd out/tmpzip
+	zip -r9 "${FILENAME}.zip" "${FILENAME}" &> /dev/null
+	cd $cwd
+	FILEPATH="out/tmpzip/${FILENAME}.zip"
+else
+	FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
+fi
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 
 dbot "Build success!"
@@ -555,8 +574,13 @@ if [[ $GD_UPLOAD -eq 1 && -f $FILEPATH ]]; then
 	uploader_msg "$FILENAME" "$link" "$FILESUM"
 fi
 
+if [[ $APK -eq 1 && -f $FILEPATH ]]; then
+	bot_doc "$FILEPATH"
+fi
+
 rm -f $LOG_TMP
 rm -f $LOG_OK
 rm -f $LOG_TRIM
+rm -r out/tmpzip
 
 exit 0
