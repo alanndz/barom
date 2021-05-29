@@ -532,7 +532,6 @@ else
 fi
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 
-dbot "Build success!"
 build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM"
 cp "$LOG_TMP" "$LOG_OK"
 bot_doc "$LOG_OK"
@@ -578,9 +577,11 @@ if [[ $APK -eq 1 && -f $FILEPATH ]]; then
 	bot_doc "$FILEPATH"
 fi
 
-rm -f $LOG_TMP
-rm -f $LOG_OK
-rm -f $LOG_TRIM
+dbot "Build success!"
+
+rm -f $LOG_TMP 2> /dev/null
+rm -f $LOG_OK 2> /dev/null
+rm -f $LOG_TRIM 2> /dev/null
 rm -r out/tmpzip 2> /dev/null
 
 exit 0

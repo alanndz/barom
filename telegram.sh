@@ -78,6 +78,8 @@ check_upload() {
 		echo "Sourceforge"
 	elif [[ $GD_UPLOAD -eq 1 ]]; then
 		echo "Gdrive"
+	elif [[ $SF_UPLOAD -eq 1 && $GD_UPLOAD -eq 1 ]]; then
+		echo "Gdrive and Sourceforge"
 	else
 		echo "No upload"
 	fi
