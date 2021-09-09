@@ -101,6 +101,7 @@ bot_doc() {
 build_message() {
 	if [ "$CI_MESSAGE_ID" = "" ]; then
 CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Building ROM =========</b>
+
 <b>ROM Name:</b> <code>${ROM}</code>
 <b>Device:</b> <code>${DEVICE}</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
@@ -113,6 +114,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
 	else
 tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "<b>========= Building ROM =========</b>
+
 <b>ROM Name:</b> <code>${ROM}</code>
 <b>Device:</b> <code>${DEVICE}</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
@@ -168,6 +170,7 @@ build_fail() {
 build_success() {
 	bot_msg \
 	"<b>========= Build ROM Success =========</b>" \
+        " " \
 	"<b>Filename:</b> <code>$4</code>" \
 	"<b>md5sum:</b> <code>$5</code>" \
 	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
@@ -175,6 +178,7 @@ build_success() {
 uploader_msg() {
 	bot_msg \
 	"<b>============= Uploader =============</b>" \
+        " " \
 	"<b>Filename:</b> <code>$1</code>" \
         "<b>Size:</b> <code>$4</code>" \
 	"<b>md5sum:</b> <code>$3</code>" \
