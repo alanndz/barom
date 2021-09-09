@@ -176,6 +176,7 @@ uploader_msg() {
 	bot_msg \
 	"<b>============= Uploader =============</b>" \
 	"<b>Filename:</b> <code>$1</code>" \
+        "<b>Size:</b> <code>$4</code>" \
 	"<b>md5sum:</b> <code>$3</code>" \
 	"<b>Link:</b> $2"
 }

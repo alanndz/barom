@@ -531,6 +531,7 @@ else
 	FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 fi
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
+FILESIZE=$(ls -lah "$FILEPATH" | cut -d ' ' -f 5)
 
 build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM"
 cp "$LOG_TMP" "$LOG_OK"
@@ -562,7 +563,7 @@ EOF
 	[[ $ret -ne 0 ]] && dbot "Upload to sourceforge failed!" && exit $ret
 	sleep 2
 	dbg "Uploaded to https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
-	uploader_msg "$FILENAME" "https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download" "$FILESUM"
+	uploader_msg "$FILENAME" "https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download" "$FILESUM" "$FILESIZE"
 fi
 
 if [[ $GD_UPLOAD -eq 1 && -f $FILEPATH ]]; then
@@ -570,7 +571,7 @@ if [[ $GD_UPLOAD -eq 1 && -f $FILEPATH ]]; then
 	GD=$(gdrive upload --share $FILEPATH)
 	link=$(echo "$GD" | grep "https://" | cut -d" " -f7)
 	dbg "Uploaded to $link"
-	uploader_msg "$FILENAME" "$link" "$FILESUM"
+	uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
 fi
 
 if [[ $APK -eq 1 && -f $FILEPATH ]]; then
