@@ -92,6 +92,7 @@ setup_env() {
 	SF_USER="$(dnc sf_user)"
 	SF_PW="$(dnc sf_pw)"
 	O="out/target/product/$DEVICE"
+	RESULT="../build-result"
 }
 ############## END ##############
 # Reseting all configure
@@ -418,6 +419,8 @@ resync() {
 [[ $RESYNC -eq 1 ]] && resync
 
 mkdir -p out
+mkdir -p $RESULT
+
 DATELOG="$(date "+%H%M-%d%m%Y")"
 DATE=`date`
 LOG_TMP="out/log_tmp.log"
@@ -581,6 +584,8 @@ fi
 
 dbot "Build success!"
 
+dbg "Move rom to $RESULT"
+mv -f $FILEPATH $RESULT
 rm -f $LOG_TMP 2> /dev/null
 rm -f $LOG_OK 2> /dev/null
 rm -f $LOG_TRIM 2> /dev/null
