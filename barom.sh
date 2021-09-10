@@ -537,7 +537,7 @@ fi
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 FILESIZE=$(ls -lah "$FILEPATH" | cut -d ' ' -f 5)
 
-build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM"
+build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM" "$FILESIZE"
 cp "$LOG_TMP" "$LOG_OK"
 bot_doc "$LOG_OK"
 

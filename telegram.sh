@@ -165,6 +165,7 @@ progress() {
 build_fail() {
 	bot_msg \
 	"<b>========= Build ROM Failed =========</b>" \
+	" " \
 	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
 }
 build_success() {
@@ -172,7 +173,9 @@ build_success() {
 	"<b>========= Build ROM Success =========</b>" \
         " " \
 	"<b>Filename:</b> <code>$4</code>" \
+        "<b>Size:</b> <code>$6</code>" \
 	"<b>md5sum:</b> <code>$5</code>" \
+	" " \
 	"Total time elapsed:  $1 hours $2 minutes $3 seconds"
 }
 uploader_msg() {
@@ -182,5 +185,6 @@ uploader_msg() {
 	"<b>Filename:</b> <code>$1</code>" \
         "<b>Size:</b> <code>$4</code>" \
 	"<b>md5sum:</b> <code>$3</code>" \
+	" " \
 	"<b>Link:</b> $2"
 }
