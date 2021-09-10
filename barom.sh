@@ -527,7 +527,8 @@ if [[ $APK -eq 1 ]]; then
 	cd $cwd
 	FILEPATH="out/tmpzip/${FILENAME}.zip"
 else
-	FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	#	FILEPATH=$(find "$O" -type f -name "$ROM*$DEVICE*zip" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	FILEPATH=$(ls ${O}/${ROM}*${DEVICE}*.zip -Art | head -1)
 	FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 fi
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
