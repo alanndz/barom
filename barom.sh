@@ -470,10 +470,11 @@ tee "out/lunch_error.log" < pipo &
 lunch "$LUNCH"_"$DEVICE"-"$TYPE" > pipo
 
 retVal=$?
-[[ $retVal -ne 0 ]] &&
-	dbot "lunch command failed with status code $retVal" &&
-	bot_doc "out/lunch_error.log" &&
+if [[ $retVal -ne 0 ]]; then
+	dbot "lunch command failed with status code $retVal"
+	bot_doc "out/lunch_error.log"
 	err "lunch command failed with status code $retVal . Exiting"
+fi
 
 dbot "lunch command done"
 
