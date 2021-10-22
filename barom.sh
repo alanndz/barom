@@ -92,7 +92,7 @@ setup_env() {
 	SF_USER="$(dnc sf_user)"
 	SF_PW="$(dnc sf_pw)"
 	O="out/target/product/$DEVICE"
-	RESULT="../build-result-${LUNCH}"
+	RESULT="build-result"
 }
 ############## END ##############
 # Reseting all configure
@@ -585,7 +585,7 @@ fi
 
 dbot "Build success!"
 
-dbg "Move rom to $RESULT"
+dbg "Move rom to $cwd/$RESULT"
 mv -f $FILEPATH $RESULT
 rm -f $LOG_TMP 2> /dev/null
 rm -f $LOG_OK 2> /dev/null
