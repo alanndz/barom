@@ -92,7 +92,7 @@ setup_env() {
 	SF_USER="$(dnc sf_user)"
 	SF_PW="$(dnc sf_pw)"
 	O="out/target/product/$DEVICE"
-	RESULT="build-result"
+	RESULT="result"
 }
 ############## END ##############
 # Reseting all configure
