@@ -457,25 +457,25 @@ fi
 
 # Lunch command
 if [[ "$LUNCH" = "$DEVICE" ]]; then
-	L="lunch $LUNCH-$TYPE"
+	L="$LUNCH-$TYPE"
 else
-	L="lunch $LUNCH_$DEVICE-$TYPE"
+	L="$LUNCH_$DEVICE-$TYPE"
 fi
 
 if [[ $LUNCH_CHECK -eq 1 ]]; then
-	"${L}"
+	lunch "$L"
 	exit 0
 fi
 
 [[ $BUILD -ne 1 ]] &&
 	exit 0
 
-dbot "${L}"
+dbot "lunch ${L}"
 # lunch command
 mkfifo pipo 2> /dev/null
 tee "out/lunch_error.log" < pipo &
 
-"${L}" > pipo
+lunch "$L" > pipo
 
 retVal=$?
 if [[ $retVal -ne 0 ]]; then
