@@ -455,19 +455,27 @@ elif [[ "$CLEAN" == "device" ]]; then
 	make deviceclean
 fi
 
-[[ $LUNCH_CHECK -eq 1 ]] &&
-	lunch "$LUNCH"_"$DEVICE"-"$TYPE" &&
+# Lunch command
+if [[ "$LUNCH" = "$DEVICE" ]]; then
+	L="lunch $LUNCH-$TYPE"
+else
+	L="lunch $LUNCH_$DEVICE-$TYPE"
+fi
+
+if [[ $LUNCH_CHECK -eq 1 ]]; then
+	"${L}"
 	exit 0
+fi
 
 [[ $BUILD -ne 1 ]] &&
 	exit 0
 
-dbot "lunch ${LUNCH}_${DEVICE}-${TYPE}"
+dbot "${L}"
 # lunch command
 mkfifo pipo 2> /dev/null
 tee "out/lunch_error.log" < pipo &
 
-lunch "$LUNCH"_"$DEVICE"-"$TYPE" > pipo
+"${L}" > pipo
 
 retVal=$?
 if [[ $retVal -ne 0 ]]; then
