@@ -457,9 +457,9 @@ fi
 
 # Lunch command
 if [[ "$LUNCH" = "$DEVICE" ]]; then
-	L="$LUNCH-$TYPE"
+	L="${LUNCH}-${TYPE}"
 else
-	L="$LUNCH_$DEVICE-$TYPE"
+	L="${LUNCH}_${DEVICE}-${TYPE}"
 fi
 
 if [[ $LUNCH_CHECK -eq 1 ]]; then
