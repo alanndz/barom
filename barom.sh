@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 NAME="Barom"
-VERSION="1.5"
+VERSION="1.6"
 
 cwd=$(pwd)
 
