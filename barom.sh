@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2019-2023 alanndz <alanmahmud0@gmail.com>
+# Copyright (C) 2019-2021 alanndz <alanmahmud0@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 NAME="Barom"
-VERSION="2.0"
-
+VERSION="1.6"
 cwd=$(pwd)
 
 dbg() { echo -e "\e[92m[*] $@\e[39m"; }
 err() { echo -e "\e[91m[!] $@\e[39m"; exit 1; }
 grn() { echo -e "\e[92m$@\e[39m"; }
 red() { echo -e "\e[91m$@\e[39m"; }
+prin() { echo -e "$@"; }
 
 # Checking dependencies
 #for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
@@ -20,24 +20,26 @@ red() { echo -e "\e[91m$@\e[39m"; }
 #done
 
 CONF=".barom"
-if [[ ! -d $CONF ]]; then
-    dbg "Creating $CONF folder's for configs"
-    mkdir -p $CONF
+RESULT="result"
+if [[ ! -d $CONF || ! -d $RESULT || ! -d "$RESULT/log" ]]; then
+    dbg "Creating $CONF/$RESULT folder's for configs"
+    mkdir -p $CONF $RESULT $RESULT/log
 fi
 
 ##### Setup Config #####
-Config.name() { git config -f "$CONF/barom.conf" barom.name $1; }
-Config.lunch() { git config -f "$CONF/barom.conf" barom.lunch $1; }
-Config.device() { git config -f "$CONF/barom.conf" barom.device $1; }
-Config.cmd() { git config -f "$CONF/barom.conf" barom.cmd ${1// /.}; }
-Config.jobs() { git config -f "$CONF/barom.conf" barom.jobs $1; }
-Config.tgid() { git config -f "$CONF/barom.conf" telegram.channelid $1; }
-Config.tgtoken() { git config -f "$CONF/barom.conf" telegram.token $1; }
-Config.manifest() { git config -f "$CONF/barom.conf" repo.manifest $1; }
-Config.branch() { git config -f "$CONF/barom.conf" repo.branch $1; }
-Config.sfuser() { git config -f "$CONF/barom.conf" sourceforge.user $1; }
-Config.sfpass() { git config -f "$CONF/barom.conf" sourceforge.pass $1; }
-Config.sfpath() { git config -f "$CONF/barom.conf" sourceforge.path $1; }
+Config.name() { git config -f "$CONF/barom.conf" barom.name "$@"; }
+Config.lunch() { git config -f "$CONF/barom.conf" barom.lunch "$@"; }
+Config.device() { git config -f "$CONF/barom.conf" barom.device "$@"; }
+Config.cmd() { git config -f "$CONF/barom.conf" barom.cmd "$@"; }
+# Config.cmd() { echo $@; }
+Config.jobs() { git config -f "$CONF/barom.conf" barom.jobs "$@"; }
+Config.tgid() { git config -f "$CONF/barom.conf" telegram.channelid "$@"; }
+Config.tgtoken() { git config -f "$CONF/barom.conf" telegram.token "$@"; }
+Config.manifest() { git config -f "$CONF/barom.conf" repo.manifest "$@"; }
+Config.branch() { git config -f "$CONF/barom.conf" repo.branch "$@"; }
+Config.sfuser() { git config -f "$CONF/barom.conf" sourceforge.user "$@"; }
+Config.sfpass() { git config -f "$CONF/barom.conf" sourceforge.pass "$@"; }
+Config.sfpath() { git config -f "$CONF/barom.conf" sourceforge.path "$@"; }
 
 # Create default config if barom.conf empty
 if [[ ! -f "$CONF/barom.conf" ]]; then
@@ -49,13 +51,14 @@ if [[ ! -f "$CONF/barom.conf" ]]; then
 fi
 ##### End Setup Config #####
 
-# Pull telegram.sh
-[[ ! -f "$CONF/telegram.sh" ]] && curl -L -o "$CONF/telegram.sh" -s https://github.com/alanndz/barom/raw/main/telegram.sh
-
-TMP_SYNC="sync-rom.log"
-
 dnc() { echo "$(openssl enc -base64 -d <<< $@)"; }
 enc() { echo "$(openssl enc -base64 <<< $@)"; }
+
+# Pull telegram.sh
+[[ ! -f "$CONF/telegram.sh" ]] && curl -L -o "$CONF/telegram.sh" -s https://github.com/alanndz/barom/raw/main/telegram.sh
+[[ -f "$CONF/telegram.sh" ]] && source "$CONF/telegram.sh" || err "Error: file "$CONF/telegram.sh" not found, please check internet connection for download first"
+
+TMP_SYNC="sync-rom.log"
 
 repo() {
     echo "repo $@"
@@ -142,6 +145,21 @@ fixErrorSync() {
     fi
 }
 
+lun() {
+    echo "lun $@"
+    return 0
+}
+
+lunch_() {
+    lun $(Config.lunch) > filunch
+    local ret=$?
+    if [[ $ret -ne 0 ]]
+    then
+        err "Error: lunch $(Config.lunch) failed with code $ret"
+    fi
+}
+
+
 # Parse options
 END_OF_OPT=
 POSITIONAL=()
@@ -222,13 +240,30 @@ while [[ $# -gt 0 ]]; do
             fi
             ;;
         -t|--telegram)
-            if [ -n "$2" ] && [ -n "$3" ] && [ ${2:1:1} -eq ${2:1:1} ]; then
+            if [[ -n "$2" && -n "$3" && ${2:1:1} -eq ${2:1:1} ]]; then
                 Config.tgid "$(enc $2)"
                 Config.tgtoken "$(enc $3)"
                 shift 2
             else
                 err "Error: Argument for $1 is missing or more/less than 2 argument"
             fi
+            ;;
+        --send-file)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                send_file "$2"
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
+            exit
+            ;;
+        --upload-rom-latest)
+            prin "TO DO"
+            #exit
+            ;;
+        --upload-rom-file)
+            prin "TO DO"
+            #exit
             ;;
         -v|--version)
             echo "$NAME $VERSION"
@@ -245,31 +280,138 @@ done
 # Restore positional parameters
 set -- "${POSITIONAL[@]}"
 
+# Write every changes
+if [[ -n $@ ]]
+then
+    CMD_="$@"
+    #CMD=${CMD// /.}
+    Config.cmd "${CMD_}"
+fi
+
 # RESYNC
 if [[ $RESYNC -eq 1 ]]
 then
+    bot "Sync all repository ..."
     if ! repoSync "$RESYNC_CUSTOM"
     then
+        bot "Sync failed, trying to fixing ..."
         fixErrorSync
     fi
 fi
 
+# Check file build/envsetup.sh, if false exit
+[[ -f build/envsetup.sh ]] || exit
+
+# Preparing Env before build
+ROM=$(Config.name)
+DEVICE=$(Config.device)
+[[ -z $ROM ]] && ROM="Build-rom"
+CMD=$(Config.cmd)
+#CMD="${CMD//./ }"
+CMD=($CMD)
+JOBS=$(Config.jobs)
+DATELOG="$(date "+%H%M-%d%m%Y")"
+LOG_LUNCH="$RESULT/log/lunch.log"
+LOG_BUILD="$RESULT/log/build.log"
+LOG_OK="$RESULT/log/$ROM-$(Config.device)-${DATELOG}.log"
+LOG_TRIM="$RESULT/log/$ROM-$(Config.device)-${DATELOG}_error.log"
+O="out/target/product/$(Config.device)"
+
+# Preparing log record
+mkfifo filunch fibuild 2&> /dev/null
+tee "$LOG_LUNCH" < filunch &
+tee "$LOG_BUILD" < fibuild &
+
 # CCACHE
 export PATH="/usr/lib/ccache:$PATH"
+export CCACHE_EXEC=$(which ccache)
+export USE_CCACHE=1
+export CCACHE_DIR="$XCACHE"
+ccache -M 50G
 
+# Import envsetup.sh
+source build/envsetup.sh
 
 # CLEAN
+if [[ "$CLEAN" == "full" ]]; then
+    bot "make clobber & make clean"
+	make clobber
+	make clean
+elif [[ "$CLEAN" == "clean" ]]; then
+    bot "make clean"
+	make clean
+elif [[ "$CLEAN" == "dirty" ]]; then
+    bot "make installclean"
+	make installclean
+elif [[ "$CLEAN" == "device" ]]; then
+    bot "make deviceclean"
+	make deviceclean
+fi
 
-[[ $BUILD -ne 1 ]] && exit
+# LUNCH
+bot "lunch $(Config.lunch)"
+lun $(Config.lunch) > filunch
+ret=$?
+if [[ $ret -ne 0 ]]
+then
+    bot "lunch $(Config.lunch) failed with exit code $ret"
+    bot_doc "$RESULT/log/lunch.log"
+    err "Error: lunch $(Config.lunch) failed with exit code $ret"
+fi
 
-source build/envsetup.sh 2> /dev/null
-[[ $? -ne 0 ]] && dbg "Error: failed load build/envsetup.sh"
+# Build start
+[[ -z $BUILD ]] && exit
+# Tracking progress
+bot "Start building . . ."
+progress "$LOG_BUILD" &
+progress_pid=$!
 
-lunch_
-[[ $LUNCH -eq 1 ]] && echo $?
+# Real build started
+TIME_START=$(date +%s)
+echo "${@:-${CMD[@]}}" -j"$JOBS" > fibuild
+ret=$?
+TIME_END=$(date +%s)
 
+# Kill proggres &
+kill $progress_pid
 
-echo "Tekan kene"
+# Time elapsed
+t_() { echo "$(date -u --date @$(($TIME_END - $TIME_START)) +%H:%M:%S)"; }
 
-#CMD=$(Config.cmd)
-#"${CMD//./ }"
+# Split time elapsed
+H=$(t_ | cut -f1 -d":")
+M=$(t_ | cut -f2 -d":")
+S=$(t_ | cut -f3 -d":")
+
+if [[ $ret -ne 0 ]]
+then
+    bot "Build failed"
+    build_fail "$H" "$M" "$S"
+    cp "$LOG_BUILD" "$LOG_OK"
+    bot_doc "$LOG_OK"
+    sed -n '/FAILED:/,//p' "$LOG_OK" &> "$LOG_TRIM"
+    bot_doc "$LOG_TRIM"
+    err "Error: ${CMD[@]} failed with exit code $ret"
+fi
+
+# Build success
+bot "Build success"
+ROM=$(Config.name)
+FILEPATH=$(ls -Art ${O}/${ROM}*${DEVICE}*.zip | head -1)
+[[ -z $ROM ]] && FILEPATH=$(ls -Art ${O}/*.zip | head -1)
+FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
+FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
+FILESIZE=$(ls -lah "$FILEPATH" | cut -d ' ' -f 5)
+
+build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM" "$FILESIZE"
+cp "$LOG_TMP" "$LOG_OK"
+bot_doc "$LOG_OK"
+
+case $UPLOAD in
+    wet)
+        wetUpload "$FILEPATH"
+        ;;
+esac
+
+# Cleaning 
+rm -f fibuild filunch
