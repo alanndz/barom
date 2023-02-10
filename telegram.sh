@@ -4,8 +4,10 @@
 # Copyright (C) 2020 @KryPtoN
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-BOT_API_KEY="$BOT_TOKEN"
-CHAT_ID="$BOT_ID"
+BOT_API_KEY="$(dnc `Config.tgtoken`)"
+CHAT_ID="$(dnc `Config.tgid`)"
+
+[[ -n $BOT_API_KEY && -n $CHAT_ID ]] && BOT=1
 
 telegram_curl() {
 	local ACTION=${1}
@@ -73,55 +75,56 @@ tg_send_document() {
 	telegram_main sendDocument POST_FILE "$@"
 }
 
-check_upload() {
-	if [[ $SF_UPLOAD -eq 1 ]]; then
-		echo "Sourceforge"
-	elif [[ $GD_UPLOAD -eq 1 ]]; then
-		echo "Gdrive"
-	elif [[ $SF_UPLOAD -eq 1 && $GD_UPLOAD -eq 1 ]]; then
-		echo "Gdrive and Sourceforge"
-	else
-		echo "No upload"
-	fi
-}
-
 bot_msg() {
-	[[ $BUILD -eq 1 && $BOT -eq 1 ]] &&
+	if [[ $BUILD -eq 1 && $BOT -eq 1 ]]
+	then
 		tg_send_message --chat_id "$CHAT_ID" --parse_mode "html" --reply_to_message_id "$CI_MESSAGE_ID" --text "$(
 			for POST in "${@}"; do
 				echo "${POST}"
 			done
-		)" &> /dev/null
+		)" 2&> /dev/null
+	fi
 }
 bot_doc() {
-	[[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]] &&
-		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID" > /dev/null
+	if [[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]]
+	then
+		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID" 2&> /dev/null
+	fi
+}
+
+send_file() {
+	tg_send_document --chat_id "$CHAT_ID" --document "$@" 2&> /dev/null
+}
+
+bot() {
+	if [[ $BUILD -eq 1 && $BOT -eq 1 ]]
+	then
+		build_message "$@" 2&> /dev/null
+	fi
 }
 
 build_message() {
 	if [ "$CI_MESSAGE_ID" = "" ]; then
 CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Building ROM =========</b>
 
-<b>ROM Name:</b> <code>${ROM}</code>
-<b>Device:</b> <code>${DEVICE}</code>
+<b>ROM Name:</b> <code>$(Config.name)</code>
+<b>Device:</b> <code>$(Config.device)</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
-<b>Lunch:</b> <code>$LUNCH</code>
-<b>Type:</b> <code>$TYPE</code>
-<b>Command:</b> <code>$(re cmd)</code>
-<b>Upload:</b> <code>$(check_upload)</code>
+<b>Lunch:</b> <code>$(Config.lunch)</code>
+<b>Command:</b> <code>$(Config.cmd)</code>
+<b>Upload:</b> <code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
 	else
 tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "<b>========= Building ROM =========</b>
 
-<b>ROM Name:</b> <code>${ROM}</code>
-<b>Device:</b> <code>${DEVICE}</code>
+<b>ROM Name:</b> <code>$(Config.name)</code>
+<b>Device:</b> <code>$(Config.device)</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
-<b>Lunch:</b> <code>$LUNCH</code>
-<b>Type:</b> <code>$TYPE</code>
-<b>Command:</b> <code>$(re cmd)</code>
-<b>Upload:</b> <code>$(check_upload)</code>
+<b>Lunch:</b> <code>$(Config.lunch)</code>
+<b>Command:</b> <code>$(Config.cmd)</code>
+<b>Upload:</b> <code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" #&> /dev/null
@@ -130,9 +133,10 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 
 # Progress
 progress() {
+	[[ -z $BOT ]] && return
 	local BUILDLOG="$@"
 	dbg "BOTLOG: Build tracker process is running..."
-	sleep 10;
+	sleep 10
 
 	while [ 1 ]; do
 		if [[ $? -ne 0 ]]; then
