@@ -134,6 +134,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 # Progress
 progress() {
 	[[ -z $BOT ]] && return
+
 	local BUILDLOG="$@"
 	dbg "BOTLOG: Build tracker process is running..."
 	sleep 10
