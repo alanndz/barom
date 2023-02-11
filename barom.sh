@@ -14,10 +14,10 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-#for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
-#do
-#   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
-#done
+for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
+do
+   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
+done
 
 CONF=".barom"
 RESULT="result"
@@ -31,7 +31,6 @@ Config.name() { git config -f "$CONF/barom.conf" barom.name "$@"; }
 Config.lunch() { git config -f "$CONF/barom.conf" barom.lunch "$@"; }
 Config.device() { git config -f "$CONF/barom.conf" barom.device "$@"; }
 Config.cmd() { git config -f "$CONF/barom.conf" barom.cmd "$@"; }
-# Config.cmd() { echo $@; }
 Config.jobs() { git config -f "$CONF/barom.conf" barom.jobs "$@"; }
 Config.tgid() { git config -f "$CONF/barom.conf" telegram.channelid "$@"; }
 Config.tgtoken() { git config -f "$CONF/barom.conf" telegram.token "$@"; }
@@ -43,7 +42,6 @@ Config.sfpath() { git config -f "$CONF/barom.conf" sourceforge.path "$@"; }
 
 # Create default config if barom.conf empty
 if [[ ! -f "$CONF/barom.conf" ]]; then
-    Config.name BiancaProject
     Config.lunch vayu-user
     Config.device vayu
     Config.cmd "m dudu"
@@ -57,22 +55,19 @@ enc() { echo "$(openssl enc -base64 <<< $@)"; }
 # Pull telegram.sh
 [[ ! -f "$CONF/telegram.sh" ]] && curl -L -o "$CONF/telegram.sh" -s https://github.com/alanndz/barom/raw/main/telegram.sh
 [[ -f "$CONF/telegram.sh" ]] && source "$CONF/telegram.sh" || err "Error: file "$CONF/telegram.sh" not found, please check internet connection for download first"
+[[ ! -f "$CONF/transfer" ]] && curl -s -L "$(curl -fsSL https://api.github.com/repos/Mikubill/transfer/releases/latest | grep "browser_download_url.*linux.*amd64" | cut -d '"' -f 4)" | tar xz && mv transfer $CONF/
 
 TMP_SYNC="sync-rom.log"
-
-repo() {
-    echo "repo $@"
-    return 88
-}
 
 repoInit() {
     repo init -u $1 -b $2
 }
 
 repoSync() {
-    mkfifo sync
+    mkfifo sync 2&> /dev/null
     tee "$TMP_SYNC" < sync &
-    repo sync --force-sync --no-tags --no-clone-bundle --current-branch -j$(Config.jobs) --prune "$@" > sync
+    local custom="$@"
+    repo sync --force-sync --no-tags --no-clone-bundle --current-branch -j$(Config.jobs) $custom > sync
     local ret=$?
     rm sync
     return $ret
@@ -145,20 +140,52 @@ fixErrorSync() {
     fi
 }
 
-lun() {
-    echo "lun $@"
-    return 0
+upload() {
+    TRS=$(./$CONF/transfer $1 $2)
+	link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
+	dbg "Uploaded to $link"
+    echo "$link"
 }
 
-lunch_() {
-    lun $(Config.lunch) > filunch
-    local ret=$?
-    if [[ $ret -ne 0 ]]
-    then
-        err "Error: lunch $(Config.lunch) failed with code $ret"
-    fi
-}
+usage() {
+    #prin "$NAME $VERSION"
+    #prin "Author: Alanndz"
+    #prin ""
+    prin "Usage: $(basename $0) [OPTION <ARGUMENT>] [OPTION] -- [BUILD COMMAND]"
+    prin 
+    prin "Options:"
+    prin "  -b, --build                     Start build"
+    prin "  -l, --lunch <lunch cmd>         Define lunch command, (ex: vayu-userdebug)"
+    prin "  -d, --device <device>           Define device for to build, (ex: vayu)"
+    prin "  -c, --clean <option>            Make clean/dirty, description in below"
+    prin "  -n, --name <rom name>           Define rom name, it will help to detect name file for upload"
+    prin "  -L                              Show lunch command only, dont start  the build"
+    prin "  -h, --help                      Show usage"
+    prin "  -v, --version                   Show version"
+    prin
+    prin "Repo:"
+    prin "  -i, --init <manifest> <branch>  Define manifest and branch to repo init"
+    prin "  -r, --resync                    Repo sync all repository after define using -i"
+    prin "  -r, --resync <path>             Repo sync with custom path not all repository"
+    prin
+    prin "Telegram:"
+    prin "  -t, --telegram <ch id> <tg token>   Define channel id and telegram token, it will tracking proggress and send status to telegram channel"
+    prin "  --send-file-tg <path file>          Send file to telegram"
+    prin
+    prin "Upload:"
+    prin "  -u, --upload <wet>               Upload rom after finished build"
+    prin "  --upload-rom-latest              Upload latest rom from $RESULT folder"
+    prin "For upload, for now just support wetransfer"
+    prin
+    prin "-c|--clean options:"
+    prin "  full            make clobber and make clean"
+    prin "  dirty           make installclean"
+    prin "  clean           make clean"
+    prin "  device          make deviceclean"
+    prin
 
+    exit
+}
 
 # Parse options
 END_OF_OPT=
@@ -217,7 +244,7 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
             fi
             ;;
-        -b)
+        -b|--build)
             BUILD=1
             ;;
         -c|--clean)
@@ -248,8 +275,9 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 2 argument"
             fi
             ;;
-        --send-file)
+        --send-file-tg)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                [[ -z $BOT ]] && err "Error: Telegram token or channel id not defined!"
                 send_file "$2"
                 shift
             else
@@ -258,16 +286,21 @@ while [[ $# -gt 0 ]]; do
             exit
             ;;
         --upload-rom-latest)
-            prin "TO DO"
-            #exit
+            FILEPATH=$(ls -Art "$RESULT/*.zip" | tail -1)
+            dbg "Uploading $FILEPATH"
+            upload wet "$FILEPATH"
+            exit
             ;;
         --upload-rom-file)
             prin "TO DO"
-            #exit
+            exit
             ;;
         -v|--version)
-            echo "$NAME $VERSION"
+            prin "$NAME $VERSION"
             exit 0
+            ;;
+        -h|--help)
+            usage
             ;;
         --)
             END_OF_OPT=1 ;;
@@ -298,6 +331,11 @@ then
         fixErrorSync
     fi
 fi
+
+echo "BUILD $BUILD"
+echo "LUNCH $LUNCH"
+
+exit
 
 # Check file build/envsetup.sh, if false exit
 [[ -f build/envsetup.sh ]] || exit
@@ -348,9 +386,11 @@ elif [[ "$CLEAN" == "device" ]]; then
 	make deviceclean
 fi
 
+[[ -z $BUILD ]] && exit
+
 # LUNCH
 bot "lunch $(Config.lunch)"
-lun $(Config.lunch) > filunch
+lunch $(Config.lunch) > filunch
 ret=$?
 if [[ $ret -ne 0 ]]
 then
@@ -359,8 +399,9 @@ then
     err "Error: lunch $(Config.lunch) failed with exit code $ret"
 fi
 
+[[ -n $LUNCH ]] && exit
+
 # Build start
-[[ -z $BUILD ]] && exit
 # Tracking progress
 bot "Start building . . ."
 progress "$LOG_BUILD" &
@@ -368,12 +409,12 @@ progress_pid=$!
 
 # Real build started
 TIME_START=$(date +%s)
-echo "${@:-${CMD[@]}}" -j"$JOBS" > fibuild
+"${@:-${CMD[@]}}" -j"$JOBS" > fibuild
 ret=$?
 TIME_END=$(date +%s)
 
-# Kill proggres &
-kill $progress_pid
+# Kill progress &
+[[ -n BOT ]] && kill $progress_pid
 
 # Time elapsed
 t_() { echo "$(date -u --date @$(($TIME_END - $TIME_START)) +%H:%M:%S)"; }
@@ -409,7 +450,11 @@ bot_doc "$LOG_OK"
 
 case $UPLOAD in
     wet)
-        wetUpload "$FILEPATH"
+        $link=$(upload wet "$FILEPATH")
+        uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
+        ;;
+    *)
+        err "Whops, upload other than wet not supported"
         ;;
 esac
 
