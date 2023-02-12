@@ -14,16 +14,17 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
-do
-   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
-done
+#for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
+#do
+#   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
+#done
 
 CONF=".barom"
+BIN="$HOME/$CONF"
 RESULT="result"
-if [[ ! -d $CONF || ! -d $RESULT || ! -d "$RESULT/log" ]]; then
-    dbg "Creating $CONF/$RESULT folder's for configs"
-    mkdir -p $CONF $RESULT $RESULT/log
+if [[ ! -d $CONF || ! -d $RESULT || ! -d "$RESULT/log" || ! -d "$BIN" ]]; then
+    dbg "Creating $BIN, $CONF, $RESULT, $RESULT/log folder's for configs"
+    mkdir -p $CONF $RESULT $RESULT/log $BIN
 fi
 
 ##### Setup Config #####
@@ -48,14 +49,16 @@ if [[ ! -f "$CONF/barom.conf" ]]; then
     Config.jobs $(nproc --all)
 fi
 ##### End Setup Config #####
+export PATH="$BIN:$PATH"
 
 dnc() { echo "$(openssl enc -base64 -d <<< $@)"; }
 enc() { echo "$(openssl enc -base64 <<< $@)"; }
 
 # Pull telegram.sh
-[[ ! -f "$CONF/telegram.sh" ]] && curl -L -o "$CONF/telegram.sh" -s https://github.com/alanndz/barom/raw/main/telegram.sh
-[[ -f "$CONF/telegram.sh" ]] && source "$CONF/telegram.sh" || err "Error: file "$CONF/telegram.sh" not found, please check internet connection for download first"
-[[ ! -f "$CONF/transfer" ]] && curl -s -L "$(curl -fsSL https://api.github.com/repos/Mikubill/transfer/releases/latest | grep "browser_download_url.*linux.*amd64" | cut -d '"' -f 4)" | tar xz && mv transfer $CONF/
+[[ ! -f "$BIN/barom-telegram" ]] && curl -L -o "$BIN/barom-telegram" -s https://github.com/alanndz/barom/raw/main/telegram.sh
+[[ -f "$BIN/barom-telegram" ]] && source "$BIN/barom-telegram" || err "Error: file "$BIN/barom-telegram" not found, please check internet connection for download first"
+# [[ ! -f "$BIN/transfer" ]] && curl -s -L "$(curl -fsSL https://api.github.com/repos/Mikubill/transfer/releases/latest | grep "browser_download_url.*linux.*amd64" | cut -d '"' -f 4)" | tar xz && mv transfer $BIN/
+[[ ! -f "$BIN/transfer" ]] && curl -sL https://git.io/file-transfer | sh && mv transfer "$BIN"
 
 TMP_SYNC="sync-rom.log"
 
@@ -141,9 +144,8 @@ fixErrorSync() {
 }
 
 upload() {
-    TRS=$(./$CONF/transfer $1 $2)
+    TRS=$(transfer $1 $2)
 	link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
-	dbg "Uploaded to $link"
     echo "$link"
 }
 
@@ -295,6 +297,16 @@ while [[ $# -gt 0 ]]; do
             prin "TO DO"
             exit
             ;;
+        --upload-file)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                link=$(upload wet "$2")
+                dbg "Uploaded to $link"
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
+            exit
+            ;;
         -v|--version)
             prin "$NAME $VERSION"
             exit 0
@@ -332,11 +344,6 @@ then
     fi
 fi
 
-echo "BUILD $BUILD"
-echo "LUNCH $LUNCH"
-
-exit
-
 # Check file build/envsetup.sh, if false exit
 [[ -f build/envsetup.sh ]] || exit
 
@@ -364,7 +371,7 @@ tee "$LOG_BUILD" < fibuild &
 export PATH="/usr/lib/ccache:$PATH"
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-export CCACHE_DIR="$XCACHE"
+export CCACHE_DIR="$cwd/.ccache"
 ccache -M 50G
 
 # Import envsetup.sh
@@ -414,7 +421,7 @@ ret=$?
 TIME_END=$(date +%s)
 
 # Kill progress &
-[[ -n BOT ]] && kill $progress_pid
+[[ -n $BOT ]] && kill $progress_pid
 
 # Time elapsed
 t_() { echo "$(date -u --date @$(($TIME_END - $TIME_START)) +%H:%M:%S)"; }
