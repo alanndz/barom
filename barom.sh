@@ -14,7 +14,7 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
+for dep in git env basename mkdir rm mkfifo jq ccache openssl curl repo
 do
    ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
 done
