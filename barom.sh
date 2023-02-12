@@ -14,14 +14,14 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-#for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
-#do
-#   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
-#done
+for dep in git env basename mkdir rm mkfifo jq expect ccache wget openssl
+do
+   ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
+done
 
-CONF=".barom"
-BIN="$HOME/$CONF"
-RESULT="result"
+CONF="$cwd/.barom"
+BIN="$HOME/.barom"
+RESULT="$cwd/result"
 if [[ ! -d $CONF || ! -d $RESULT || ! -d "$RESULT/log" || ! -d "$BIN" ]]; then
     dbg "Creating $BIN, $CONF, $RESULT, $RESULT/log folder's for configs"
     mkdir -p $CONF $RESULT $RESULT/log $BIN
@@ -49,7 +49,7 @@ if [[ ! -f "$CONF/barom.conf" ]]; then
     Config.jobs $(nproc --all)
 fi
 ##### End Setup Config #####
-export PATH="$BIN:$PATH"
+export PATH="$BIN:/usr/lib/ccache:$PATH"
 
 dnc() { echo "$(openssl enc -base64 -d <<< $@)"; }
 enc() { echo "$(openssl enc -base64 <<< $@)"; }
@@ -57,7 +57,6 @@ enc() { echo "$(openssl enc -base64 <<< $@)"; }
 # Pull telegram.sh
 [[ ! -f "$BIN/barom-telegram" ]] && curl -L -o "$BIN/barom-telegram" -s https://github.com/alanndz/barom/raw/main/telegram.sh
 [[ -f "$BIN/barom-telegram" ]] && source "$BIN/barom-telegram" || err "Error: file "$BIN/barom-telegram" not found, please check internet connection for download first"
-# [[ ! -f "$BIN/transfer" ]] && curl -s -L "$(curl -fsSL https://api.github.com/repos/Mikubill/transfer/releases/latest | grep "browser_download_url.*linux.*amd64" | cut -d '"' -f 4)" | tar xz && mv transfer $BIN/
 [[ ! -f "$BIN/transfer" ]] && curl -sL https://git.io/file-transfer | sh && mv transfer "$BIN"
 
 TMP_SYNC="sync-rom.log"
@@ -167,8 +166,15 @@ usage() {
     prin
     prin "Repo:"
     prin "  -i, --init <manifest> <branch>  Define manifest and branch to repo init"
+    prin "  --reinit                        Repo init again with already define by -i"
     prin "  -r, --resync                    Repo sync all repository after define using -i"
     prin "  -r, --resync <path>             Repo sync with custom path not all repository"
+    prin
+    prin "-c, --clean options description:"
+    prin "  full            make clobber and make clean"
+    prin "  dirty           make installclean"
+    prin "  clean           make clean"
+    prin "  device          make deviceclean"
     prin
     prin "Telegram:"
     prin "  -t, --telegram <ch id> <tg token>   Define channel id and telegram token, it will tracking proggress and send status to telegram channel"
@@ -177,16 +183,15 @@ usage() {
     prin "Upload:"
     prin "  -u, --upload <wet>               Upload rom after finished build"
     prin "  --upload-rom-latest              Upload latest rom from $RESULT folder"
-    prin "For upload, for now just support wetransfer"
+    prin "  --upload-file <file>             Upload file only and exit"
+    prin 
+    prin "Notes: [!] For upload, for now just support wetransfer<wet>"
+    prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
-    prin "-c|--clean options:"
-    prin "  full            make clobber and make clean"
-    prin "  dirty           make installclean"
-    prin "  clean           make clean"
-    prin "  device          make deviceclean"
-    prin
+    prin "Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu"
+    prin 
 
-    exit
+    exit 0
 }
 
 # Parse options
@@ -368,7 +373,6 @@ tee "$LOG_LUNCH" < filunch &
 tee "$LOG_BUILD" < fibuild &
 
 # CCACHE
-export PATH="/usr/lib/ccache:$PATH"
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
 export CCACHE_DIR="$cwd/.ccache"
@@ -379,16 +383,20 @@ source build/envsetup.sh
 
 # CLEAN
 if [[ "$CLEAN" == "full" ]]; then
+    dbg "make clobber & make clean"
     bot "make clobber & make clean"
 	make clobber
 	make clean
 elif [[ "$CLEAN" == "clean" ]]; then
+    dbg "make clean"
     bot "make clean"
 	make clean
 elif [[ "$CLEAN" == "dirty" ]]; then
+    dbg "make installclean"
     bot "make installclean"
 	make installclean
 elif [[ "$CLEAN" == "device" ]]; then
+    dbg "make deviceclean"
     bot "make deviceclean"
 	make deviceclean
 fi
@@ -467,3 +475,5 @@ esac
 
 # Cleaning 
 rm -f fibuild filunch
+
+exit $ret
