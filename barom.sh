@@ -463,9 +463,6 @@ build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM" "$FILESIZE"
 cp "$LOG_BUILD" "$LOG_OK"
 bot_doc "$LOG_OK"
 
-mv "$FILEPATH" "$RESULT"
-dbg "ROM moved to $RESULT/$FILENAME"
-
 if [[ -n $UPLOAD ]]
 then
     case $UPLOAD in
@@ -478,6 +475,10 @@ then
             ;;
     esac
 fi
+
+# Move ROM to $RESULT
+mv "$FILEPATH" "$RESULT"
+dbg "ROM moved to $RESULT/$FILENAME"
 
 # Cleaning 
 rm -f fibuild filunch
