@@ -293,7 +293,7 @@ while [[ $# -gt 0 ]]; do
             exit
             ;;
         --upload-rom-latest)
-            FILEPATH=$(ls -Art "$RESULT/*.zip" | tail -1)
+            FILEPATH=$(ls -Art $RESULT/*.zip | tail -1)
             dbg "Uploading $FILEPATH"
             upload wet "$FILEPATH"
             exit
@@ -460,18 +460,24 @@ FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 FILESIZE=$(ls -lah "$FILEPATH" | cut -d ' ' -f 5)
 
 build_success "$H" "$M" "$S" "$FILENAME" "$FILESUM" "$FILESIZE"
-cp "$LOG_TMP" "$LOG_OK"
+cp "$LOG_BUILD" "$LOG_OK"
 bot_doc "$LOG_OK"
 
-case $UPLOAD in
-    wet)
-        $link=$(upload wet "$FILEPATH")
-        uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
-        ;;
-    *)
-        err "Whops, upload other than wet not supported"
-        ;;
-esac
+mv "$FILEPATH" "$RESULT"
+dbg "ROM moved to $RESULT/$FILENAME"
+
+if [[ -n $UPLOAD ]]
+then
+    case $UPLOAD in
+        wet)
+            $link=$(upload wet "$FILEPATH")
+            uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
+            ;;
+        *)
+            err "Whops, upload other than wet not supported"
+            ;;
+    esac
+fi
 
 # Cleaning 
 rm -f fibuild filunch
