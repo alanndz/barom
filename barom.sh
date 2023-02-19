@@ -62,7 +62,8 @@ repoSync() {
     mkfifo sync 2&> /dev/null
     tee "$TMP_SYNC" < sync &
     local custom="$@"
-    repo sync --force-sync --no-tags --no-clone-bundle --current-branch -j$(Config.jobs) $custom > sync
+    local jobs=$(Config.jobs)
+    repo sync --force-sync --no-tags --no-clone-bundle --current-branch -j${jobs:-$(nproc --all)} $custom > sync
     local ret=$?
     rm sync
     return $ret
