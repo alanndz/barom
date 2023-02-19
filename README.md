@@ -46,12 +46,15 @@ Repo:
 
 Telegram:
   -t, --telegram <ch id> <tg token>   Define channel id and telegram token, it will tracking proggress and send status to telegram channel
-  --send-file-tg <path file>          Send file to telegram
+  --send-file-tg, --sft <path file>   Send file to telegram
 
 Upload:
   -u, --upload <wet>               Upload rom after finished build
-  --upload-rom-latest              Upload latest rom from /mnt/wsl/PHYSICALDRIVE1p1/bp/result folder
+  --upload-rom-latest, --url       Upload latest rom from /mnt/wsl/PHYSICALDRIVE1p1/bp/result folder
   --upload-file <file>             Upload file only and exit
+
+CCache:
+  --ccache-dir <dir path>         Set custom directory for ccache
 
 Notes: [!] For upload, for now just support wetransfer<wet>
        [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument
