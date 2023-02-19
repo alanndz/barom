@@ -320,7 +320,7 @@ while [[ $# -gt 0 ]]; do
             fi
             ;;
         -v|--version)
-            prin "$NAME $VERSION"
+            prin "$NAME $VERSION by alanndz"
             exit 0
             ;;
         -h|--help)
