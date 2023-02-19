@@ -22,9 +22,9 @@ done
 CONF="$cwd/.baromconfig"
 BIN="$HOME/.barom"
 RESULT="$cwd/result"
-if [[ ! -d $RESULT || ! -d "$RESULT/log" || ! -d "$BIN" ]]; then
-    dbg "Creating $BIN, $RESULT, $RESULT/log folder's for configs"
-    mkdir -p $RESULT $RESULT/log $BIN
+if [[ ! -d "$BIN" ]]; then
+    dbg "Creating $BIN folder's"
+    mkdir -p $BIN
 fi
 
 ##### Setup Config #####
@@ -350,6 +350,7 @@ fi
 ROM=$(Config.name)
 DEVICE=$(Config.device)
 [[ -z $ROM ]] && ROM="Build-rom"
+[[ ! -d $RESULT ]] && dbg "Creating $RESULT folder's" && mkdir -p $RESULT/log
 CMD=$(Config.cmd)
 #CMD="${CMD//./ }"
 CMD=($CMD)
