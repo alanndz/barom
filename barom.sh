@@ -173,11 +173,11 @@ usage() {
     prin
     prin "Telegram:"
     prin "  -t, --telegram <ch id> <tg token>   Define channel id and telegram token, it will tracking proggress and send status to telegram channel"
-    prin "  --send-file-tg <path file>          Send file to telegram"
+    prin "  --send-file-tg, --sft <path file>   Send file to telegram"
     prin
     prin "Upload:"
     prin "  -u, --upload <wet>               Upload rom after finished build"
-    prin "  --upload-rom-latest              Upload latest rom from $RESULT folder"
+    prin "  --upload-rom-latest, --url       Upload latest rom from $RESULT folder"
     prin "  --upload-file <file>             Upload file only and exit"
     prin 
     prin "CCache:"
@@ -280,7 +280,7 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 2 argument"
             fi
             ;;
-        --send-file-tg)
+        --send-file-tg|--sft)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 [[ -z $BOT ]] && err "Error: Telegram token or channel id not defined!"
                 send_file "$2"
@@ -290,7 +290,7 @@ while [[ $# -gt 0 ]]; do
             fi
             exit
             ;;
-        --upload-rom-latest)
+        --upload-rom-latest|--url)
             FILEPATH=$(ls -Art $RESULT/*.zip | tail -1)
             dbg "Uploading $FILEPATH"
             upload wet "$FILEPATH"
