@@ -40,6 +40,7 @@ Config.branch() { git config -f "$CONF" repo.branch "$@"; }
 Config.sfuser() { git config -f "$CONF" sourceforge.user "$@"; }
 Config.sfpass() { git config -f "$CONF" sourceforge.pass "$@"; }
 Config.sfpath() { git config -f "$CONF" sourceforge.path "$@"; }
+Config.ccdir() { git config -f "$CONF" ccache.dir "$@"; }
 
 ##### End Setup Config #####
 export PATH="$BIN:/usr/lib/ccache:$PATH"
@@ -179,6 +180,9 @@ usage() {
     prin "  --upload-rom-latest              Upload latest rom from $RESULT folder"
     prin "  --upload-file <file>             Upload file only and exit"
     prin 
+    prin "CCache:"
+    prin "  --ccache-dir <dir path>         Set custom directory for ccache"
+    prin
     prin "Notes: [!] For upload, for now just support wetransfer<wet>"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
@@ -306,6 +310,15 @@ while [[ $# -gt 0 ]]; do
             fi
             exit
             ;;
+        --ccache-dir)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                dbg "CCache directory set to $2"
+                Config.ccdir "$2"
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
+            ;;
         -v|--version)
             prin "$NAME $VERSION"
             exit 0
@@ -362,6 +375,7 @@ LOG_BUILD="$RESULT/log/build.log"
 LOG_OK="$RESULT/log/$ROM-$(Config.device)-${DATELOG}.log"
 LOG_TRIM="$RESULT/log/$ROM-$(Config.device)-${DATELOG}_error.log"
 O="out/target/product/$(Config.device)"
+XCACHE=$(Config.ccdir)
 
 # Preparing log record
 mkfifo filunch fibuild 2&> /dev/null
@@ -371,7 +385,7 @@ tee "$LOG_BUILD" < fibuild &
 # CCACHE
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-export CCACHE_DIR="$cwd/.ccache"
+export CCACHE_DIR="${XCACHE:-$HOME/.ccache}"
 ccache -M 50G
 
 # Import envsetup.sh
