@@ -353,6 +353,7 @@ CMD=$(Config.cmd)
 #CMD="${CMD//./ }"
 CMD=($CMD)
 JOBS=$(Config.jobs)
+JOBS=${JOBS:-$(nproc --all)}
 DATELOG="$(date "+%H%M-%d%m%Y")"
 LOG_LUNCH="$RESULT/log/lunch.log"
 LOG_BUILD="$RESULT/log/build.log"
