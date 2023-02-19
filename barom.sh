@@ -33,8 +33,8 @@ Config.lunch() { git config -f "$CONF" barom.lunch "$@"; }
 Config.device() { git config -f "$CONF" barom.device "$@"; }
 Config.cmd() { git config -f "$CONF" barom.cmd "$@"; }
 Config.jobs() { git config -f "$CONF" barom.jobs "$@"; }
-Config.tgid() { git config -f "$CONF" telegram.channelid "$@"; }
-Config.tgtoken() { git config -f "$CONF" telegram.token "$@"; }
+Config.tgid() { git config -f "$BIN/baromconfig" telegram.channelid "$@"; }
+Config.tgtoken() { git config -f "$BIN/baromconfig" telegram.token "$@"; }
 Config.manifest() { git config -f "$CONF" repo.manifest "$@"; }
 Config.branch() { git config -f "$CONF" repo.branch "$@"; }
 Config.sfuser() { git config -f "$CONF" sourceforge.user "$@"; }
