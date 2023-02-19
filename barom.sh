@@ -41,13 +41,6 @@ Config.sfuser() { git config -f "$CONF/barom.conf" sourceforge.user "$@"; }
 Config.sfpass() { git config -f "$CONF/barom.conf" sourceforge.pass "$@"; }
 Config.sfpath() { git config -f "$CONF/barom.conf" sourceforge.path "$@"; }
 
-# Create default config if barom.conf empty
-if [[ ! -f "$CONF/barom.conf" ]]; then
-    Config.lunch vayu-user
-    Config.device vayu
-    Config.cmd "m dudu"
-    Config.jobs $(nproc --all)
-fi
 ##### End Setup Config #####
 export PATH="$BIN:/usr/lib/ccache:$PATH"
 
