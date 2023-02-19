@@ -19,27 +19,27 @@ do
    ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
 done
 
-CONF="$cwd/.barom"
+CONF="$cwd/.baromconfig"
 BIN="$HOME/.barom"
 RESULT="$cwd/result"
-if [[ ! -d $CONF || ! -d $RESULT || ! -d "$RESULT/log" || ! -d "$BIN" ]]; then
-    dbg "Creating $BIN, $CONF, $RESULT, $RESULT/log folder's for configs"
-    mkdir -p $CONF $RESULT $RESULT/log $BIN
+if [[ ! -d $RESULT || ! -d "$RESULT/log" || ! -d "$BIN" ]]; then
+    dbg "Creating $BIN, $RESULT, $RESULT/log folder's for configs"
+    mkdir -p $RESULT $RESULT/log $BIN
 fi
 
 ##### Setup Config #####
-Config.name() { git config -f "$CONF/barom.conf" barom.name "$@"; }
-Config.lunch() { git config -f "$CONF/barom.conf" barom.lunch "$@"; }
-Config.device() { git config -f "$CONF/barom.conf" barom.device "$@"; }
-Config.cmd() { git config -f "$CONF/barom.conf" barom.cmd "$@"; }
-Config.jobs() { git config -f "$CONF/barom.conf" barom.jobs "$@"; }
-Config.tgid() { git config -f "$CONF/barom.conf" telegram.channelid "$@"; }
-Config.tgtoken() { git config -f "$CONF/barom.conf" telegram.token "$@"; }
-Config.manifest() { git config -f "$CONF/barom.conf" repo.manifest "$@"; }
-Config.branch() { git config -f "$CONF/barom.conf" repo.branch "$@"; }
-Config.sfuser() { git config -f "$CONF/barom.conf" sourceforge.user "$@"; }
-Config.sfpass() { git config -f "$CONF/barom.conf" sourceforge.pass "$@"; }
-Config.sfpath() { git config -f "$CONF/barom.conf" sourceforge.path "$@"; }
+Config.name() { git config -f "$CONF" barom.name "$@"; }
+Config.lunch() { git config -f "$CONF" barom.lunch "$@"; }
+Config.device() { git config -f "$CONF" barom.device "$@"; }
+Config.cmd() { git config -f "$CONF" barom.cmd "$@"; }
+Config.jobs() { git config -f "$CONF" barom.jobs "$@"; }
+Config.tgid() { git config -f "$CONF" telegram.channelid "$@"; }
+Config.tgtoken() { git config -f "$CONF" telegram.token "$@"; }
+Config.manifest() { git config -f "$CONF" repo.manifest "$@"; }
+Config.branch() { git config -f "$CONF" repo.branch "$@"; }
+Config.sfuser() { git config -f "$CONF" sourceforge.user "$@"; }
+Config.sfpass() { git config -f "$CONF" sourceforge.pass "$@"; }
+Config.sfpath() { git config -f "$CONF" sourceforge.path "$@"; }
 
 ##### End Setup Config #####
 export PATH="$BIN:/usr/lib/ccache:$PATH"
