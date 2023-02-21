@@ -463,8 +463,8 @@ fi
 # Build success
 bot "Build success"
 ROM=$(Config.name)
-FILEPATH=$(ls -Art ${O}/${ROM}*${DEVICE}*.zip | head -1)
-[[ -z $ROM ]] && FILEPATH=$(ls -Art ${O}/*.zip | head -1)
+FILEPATH=$(ls -Art ${O}/${ROM}*${DEVICE}*.zip | tail -1)
+[[ -z $ROM ]] && FILEPATH=$(ls -Art ${O}/*.zip | tail -1)
 FILENAME=$(echo "$FILEPATH" | cut -f5 -d"/")
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
 FILESIZE=$(ls -lah "$FILEPATH" | cut -d ' ' -f 5)
