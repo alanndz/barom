@@ -137,6 +137,13 @@ fixErrorSync() {
     fi
 }
 
+checkUpload() {
+    local LIST="wet fio trs"
+    local DELIMITER=" "
+    local VALUE=$1
+    echo $LIST | tr "$DELIMITER" '\n' | grep -F -q -x "$VALUE"
+}
+
 upload() {
     TRS=$(transfer $1 $2)
 	link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
@@ -176,14 +183,14 @@ usage() {
     prin "  --send-file-tg, --sft <path file>   Send file to telegram"
     prin
     prin "Upload:"
-    prin "  -u, --upload <wet>               Upload rom after finished build"
+    prin "  -u, --upload <wet|trs|fio>       Upload rom after finished build"
     prin "  --upload-rom-latest, --url       Upload latest rom from $RESULT folder"
     prin "  --upload-file <file>             Upload file only and exit"
     prin 
     prin "CCache:"
     prin "  --ccache-dir <dir path>         Set custom directory for ccache"
     prin
-    prin "Notes: [!] For upload, for now just support wetransfer<wet>"
+    prin "Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs>"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
     prin "Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu"
@@ -266,6 +273,7 @@ while [[ $# -gt 0 ]]; do
         -u|--upload)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 UPLOAD="$2"
+                checkUpload "$UPLOAD" || err "Error: Upload to $UPLOAD not supported"
                 shift
             else
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
@@ -476,12 +484,12 @@ bot_doc "$LOG_OK"
 if [[ -n $UPLOAD ]]
 then
     case $UPLOAD in
-        wet)
-            $link=$(upload wet "$FILEPATH")
+        wet|fio|trs)
+            $link=$(upload "$UPLOAD" "$FILEPATH")
             uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
             ;;
         *)
-            err "Whops, upload other than wet not supported"
+            err "Whops, upload other than wet|trs|fio not supported"
             ;;
     esac
 fi
