@@ -158,6 +158,7 @@ usage() {
     prin "  -d, --device <device>           Define device for to build, (ex: vayu)"
     prin "  -c, --clean <option>            Make clean/dirty, description in below"
     prin "  -n, --name <rom name>           Define rom name, it will help to detect name file for upload"
+    prin "  -t, --timer <..s/m/h>           Define timer to limit time when building (ex: 1m)"
     prin "  -L                              Show lunch command only, dont start  the build"
     prin "  -h, --help                      Show usage"
     prin "  -v, --version                   Show version"
@@ -248,6 +249,14 @@ while [[ $# -gt 0 ]]; do
         -n|--name)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 Config.name "$2"
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
+            ;;
+        -t|--timer)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                TIMER=$2
                 shift
             else
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
@@ -450,9 +459,14 @@ progress_pid=$!
 
 # Real build started
 TIME_START=$(date +%s)
-"${@:-${CMD[@]}}" -j"$JOBS" > fibuild
+"${@:-${CMD[@]}}" -j"$JOBS" > fibuild & build_pid=$!
+[[ -n $TIMER ]] && sleep $TIMER && kill $build_pid & sleep_pid=$!
+wait $build_pid
 ret=$?
 TIME_END=$(date +%s)
+
+# Kill sleep
+[[ -n $TIMER ]] && kill $sleep_pid &> /dev/null
 
 # Kill progress &
 [[ -n $BOT ]] && kill $progress_pid
