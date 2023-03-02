@@ -58,7 +58,7 @@ TMP_SYNC="sync-rom.log"
 
 repoInit() {
     local flags=$(Config.iflags)
-    repo init $flags -u $1 -b $2
+    repo init $flags --no-repo-verify -u $1 -b $2
 }
 
 repoSync() {
