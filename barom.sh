@@ -158,7 +158,7 @@ usage() {
     prin "  -d, --device <device>           Define device for to build, (ex: vayu)"
     prin "  -c, --clean <option>            Make clean/dirty, description in below"
     prin "  -n, --name <rom name>           Define rom name, it will help to detect name file for upload"
-    prin "  -t, --timer <..s/m/h>           Define timer to limit time when building (ex: 1m)"
+    prin "  --timer <..s/m/h>           Define timer to limit time when building (ex: 1m)"
     prin "  -L                              Show lunch command only, dont start  the build"
     prin "  -h, --help                      Show usage"
     prin "  -v, --version                   Show version"
@@ -254,7 +254,7 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
             fi
             ;;
-        -t|--timer)
+        --timer)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 TIMER=$2
                 shift
