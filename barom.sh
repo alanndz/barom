@@ -80,7 +80,6 @@ fixErrorSync() {
     local e=$(grep 'fatal: Unable' "$TMP_SYNC" || true)
     local f=$(grep 'error.GitError' "$TMP_SYNC" || true)
     local g=$(grep 'error: Cannot checkout' "$TMP_SYNC" || true)
-    local h=$(grep "repo" "$TMP_SYNC" || true)
 
     if [[ $a == *'Cannot remove project'* ]]
     then
@@ -131,11 +130,6 @@ fixErrorSync() {
         do
             rm -rf .repo/project-objects/$i.git
         done
-    fi
-
-    if [[ -n $(grep "repo" "$TMP_SYNC" || true) ]]
-    then
-        echo "Let try fix"
     fi
 }
 
