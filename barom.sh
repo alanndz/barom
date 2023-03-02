@@ -37,6 +37,7 @@ Config.tgid() { git config -f "$BIN/baromconfig" telegram.channelid "$@"; }
 Config.tgtoken() { git config -f "$BIN/baromconfig" telegram.token "$@"; }
 Config.manifest() { git config -f "$CONF" repo.manifest "$@"; }
 Config.branch() { git config -f "$CONF" repo.branch "$@"; }
+Config.iflags() { git config -f "$CONF" repo.initflags "$@"; }
 Config.sfuser() { git config -f "$CONF" sourceforge.user "$@"; }
 Config.sfpass() { git config -f "$CONF" sourceforge.pass "$@"; }
 Config.sfpath() { git config -f "$CONF" sourceforge.path "$@"; }
@@ -56,7 +57,8 @@ enc() { echo "$(openssl enc -base64 <<< $@)"; }
 TMP_SYNC="sync-rom.log"
 
 repoInit() {
-    repo init -u $1 -b $2
+    local flags=$(Config.iflags)
+    repo init $flags -u $1 -b $2
 }
 
 repoSync() {
@@ -171,6 +173,7 @@ usage() {
     prin "  --reinit                        Repo init again with already define by -i"
     prin "  -r, --resync                    Repo sync all repository after define using -i"
     prin "  -r, --resync <path>             Repo sync with custom path not all repository"
+    prin "  --init-flags, --iflags <flags>  Init flags"
     prin
     prin "-c, --clean options description:"
     prin "  full            make clobber and make clean"
@@ -208,7 +211,7 @@ while [[ $# -gt 0 ]]; do
             if [ -n "$2" ] && [ -n "$3" ] && [ ${2:0:1} != "-" ]; then
                 Config.manifest "$2"
                 Config.branch "$3"
-                repoInit "$2" "$3"
+                REPOINIT=1
                 shift 2
             else
                 err "Error: Argument for $1 is missing or more/less than 2 argument"
@@ -223,6 +226,14 @@ while [[ $# -gt 0 ]]; do
                 shift
             fi
             RESYNC=1
+            ;;
+        --init-flags|--ifags)
+            if [ -n "$2" ]; then
+                Config.iflags "$2"
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
             ;;
         -l|--lunch)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
@@ -352,6 +363,9 @@ then
     #CMD=${CMD// /.}
     Config.cmd "${CMD_}"
 fi
+
+# REPOINIT
+[[ -n $REPOINIT ]] && repoInit "$2" "$3"
 
 # RESYNC
 if [[ $RESYNC -eq 1 ]]
