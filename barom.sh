@@ -368,7 +368,7 @@ then
 fi
 
 # REPOINIT
-[[ -n $REPOINIT ]] && repoInit "$2" "$3"
+[[ -n $REPOINIT ]] && repoInit $(Config.manifest) $(Config.branch)
 
 # RESYNC
 if [[ $RESYNC -eq 1 ]]
