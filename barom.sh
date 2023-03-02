@@ -507,7 +507,7 @@ if [[ -n $UPLOAD ]]
 then
     case $UPLOAD in
         wet|fio|trs)
-            $link=$(upload "$UPLOAD" "$FILEPATH")
+            link=$(upload "$UPLOAD" "$FILEPATH")
             uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
             ;;
         *)
