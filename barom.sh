@@ -63,7 +63,7 @@ repoInit() {
 }
 
 repoSync() {
-    mkfifo sync 2&> /dev/null
+    mkfifo sync &> /dev/null
     tee "$TMP_SYNC" < sync &
     local custom="$@"
     local jobs=$(Config.jobs)
