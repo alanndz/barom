@@ -42,6 +42,7 @@ Config.sfuser() { git config -f "$CONF" sourceforge.user "$@"; }
 Config.sfpass() { git config -f "$CONF" sourceforge.pass "$@"; }
 Config.sfpath() { git config -f "$CONF" sourceforge.path "$@"; }
 Config.ccdir() { git config -f "$CONF" ccache.dir "$@"; }
+Config.ccsize() { git config -f "$CONF" ccache.size "$@"; }
 
 ##### End Setup Config #####
 export PATH="$BIN:/usr/lib/ccache:$PATH"
@@ -187,6 +188,7 @@ usage() {
     prin 
     prin "CCache:"
     prin "  --ccache-dir <dir path>         Set custom directory for ccache"
+    prin "  --ccache-size <..K/M/G>         Set custom size, (default: 50G)"
     prin
     prin "Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs>"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
@@ -341,6 +343,15 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
             fi
             ;;
+        --ccache-size)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                dbg "CCache size set to $2"
+                Config.ccsize $2
+                shift
+            else
+                err "Error: Argument for $1 is missing or more/less than 1 argument"
+            fi
+            ;;
         -v|--version)
             prin "$NAME $VERSION by alanndz"
             exit 0
@@ -401,6 +412,7 @@ LOG_OK="$RESULT/log/$ROM-$(Config.device)-${DATELOG}.log"
 LOG_TRIM="$RESULT/log/$ROM-$(Config.device)-${DATELOG}_error.log"
 O="out/target/product/$(Config.device)"
 XCACHE=$(Config.ccdir)
+XSIZE=$(Config.ccsize)
 
 # Preparing log record
 mkfifo filunch fibuild 2&> /dev/null
@@ -411,7 +423,7 @@ tee "$LOG_BUILD" < fibuild &
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
 export CCACHE_DIR="${XCACHE:-$HOME/.ccache}"
-ccache -M 50G
+ccache -M ${XSIZE:-50G}
 
 # Import envsetup.sh
 source build/envsetup.sh
