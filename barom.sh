@@ -67,7 +67,7 @@ repoSync() {
     tee "$TMP_SYNC" < sync &
     local custom="$@"
     local jobs=$(Config.jobs)
-    repo sync --force-sync --no-tags --no-clone-bundle --current-branch -j${jobs:-$(nproc --all)} $custom > sync
+    repo sync --no-tags --no-clone-bundle --current-branch -j${jobs:-$(nproc --all)} $custom > sync
     local ret=$?
     rm sync
     return $ret
