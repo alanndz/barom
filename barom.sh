@@ -170,6 +170,7 @@ usage() {
     prin "  -r, --resync                    Repo sync all repository after define using -i"
     prin "  -r, --resync <path>             Repo sync with custom path not all repository"
     prin "  --init-flags, --iflags <flags>  Init flags"
+    prin "  --force-sync                    Force sync repos, use it with -r, --resync"
     prin
     prin "-c, --clean options description:"
     prin "  full            make clobber and make clean"
@@ -231,6 +232,9 @@ while [[ $# -gt 0 ]]; do
             else
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
             fi
+            ;;
+        --force-sync)
+            FSYNC=1
             ;;
         -l|--lunch)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
@@ -385,6 +389,7 @@ fi
 if [[ $RESYNC -eq 1 ]]
 then
     bot "Sync all repository ..."
+    [[ -n $FSYNC ]] && RESYNC_CUSTOM="--force-sync ${RESYNC_CUSTOM}"
     if ! repoSync "$RESYNC_CUSTOM"
     then
         bot "Sync failed, trying to fixing ..."
