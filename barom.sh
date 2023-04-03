@@ -143,7 +143,9 @@ checkUpload() {
 
 upload() {
     TRS=$(transfer $1 $2)
-	link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
+	local link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
+	[[ "$1" == "gof" ]] && link=$(echo "$link" | sed "s|?c=|d/|")
+
     echo "$link"
 }
 
