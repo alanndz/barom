@@ -112,7 +112,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$(Config.lunch)</code>
 <b>Command:</b> <code>$(Config.cmd)</code>
-<b>Upload:</b> <code></code>
+<b>Upload:</b> ${UPLOAD:-None}<code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
@@ -124,7 +124,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$(Config.lunch)</code>
 <b>Command:</b> <code>$(Config.cmd)</code>
-<b>Upload:</b> <code></code>
+<b>Upload:</b> ${UPLOAD:-None}<code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
 <b>Status:</b> $1" --parse_mode "html" #&> /dev/null
