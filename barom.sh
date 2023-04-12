@@ -120,7 +120,7 @@ fixErrorSync() {
         done
     fi
 
-    if [[ -n $f ]
+    if [[ -n $f ]]
     then
         rm -rf $(grep 'error.GitError' "$TMP_SYNC" | cut -d ' ' -f2)
     fi
