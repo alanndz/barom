@@ -162,7 +162,7 @@ usage() {
     prin "  -d, --device <device>           Define device for to build, (ex: vayu)"
     prin "  -c, --clean <option>            Make clean/dirty, description in below"
     prin "  -n, --name <rom name>           Define rom name, it will help to detect name file for upload"
-    prin "  --timer <..s/m/h>           Define timer to limit time when building (ex: 1m)"
+    prin "  --timer <..s/m/h>               Define timer to limit time when building (ex: 1m)"
     prin "  -L                              Show lunch command only, dont start  the build"
     prin "  -h, --help                      Show usage"
     prin "  -v, --version                   Show version"
@@ -186,13 +186,13 @@ usage() {
     prin "  --send-file-tg, --sft <path file>   Send file to telegram"
     prin
     prin "Upload:"
-    prin "  -u, --upload <wet|gof|trs|fio>       Upload rom after finished build"
+    prin "  -u, --upload <wet|gof|trs|fio>   Upload rom after finished build"
     prin "  --upload-rom-latest, --url       Upload latest rom from $RESULT folder"
     prin "  --upload-file <file>             Upload file only and exit"
     prin 
     prin "CCache:"
-    prin "  --ccache-dir <dir path>         Set custom directory for ccache"
-    prin "  --ccache-size <..K/M/G>         Set custom size, (default: 50G)"
+    prin "  --ccache-dir <dir path>          Set custom directory for ccache"
+    prin "  --ccache-size <..K/M/G>          Set custom size, (default: 50G)"
     prin
     prin "Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs> and gofile<gof>"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
