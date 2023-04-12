@@ -6,6 +6,7 @@
 
 BOT_API_KEY="$(dnc `Config.tgtoken`)"
 CHAT_ID="$(dnc `Config.tgid`)"
+ROMNAME="$(Config.name)"
 
 [[ -n $BOT_API_KEY && -n $CHAT_ID ]] && BOT=1
 
@@ -107,7 +108,7 @@ build_message() {
 	if [ "$CI_MESSAGE_ID" = "" ]; then
 CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Building ROM =========</b>
 
-<b>ROM Name:</b> <code>$(Config.name)</code>
+<b>ROM Name:</b> <code>${ROMNAME:-Unknown}</code>
 <b>Device:</b> <code>$(Config.device)</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$(Config.lunch)</code>
@@ -119,7 +120,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 	else
 tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "<b>========= Building ROM =========</b>
 
-<b>ROM Name:</b> <code>$(Config.name)</code>
+<b>ROM Name:</b> <code>${ROMNAME:-Unknown}</code>
 <b>Device:</b> <code>$(Config.device)</code>
 <b>Branch:</b> <code>${REPO_BRANCH}</code>
 <b>Lunch:</b> <code>$(Config.lunch)</code>
