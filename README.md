@@ -20,7 +20,7 @@ chmod +x barom
 ```
 $ barom -h
 
-Usage: barom.sh [OPTION <ARGUMENT>] [OPTION] -- [BUILD COMMAND]
+Usage: barom [OPTION <ARGUMENT>] [OPTION] -- [BUILD COMMAND]
 
 Options:
   -b, --build                     Start build
@@ -28,7 +28,7 @@ Options:
   -d, --device <device>           Define device for to build, (ex: vayu)
   -c, --clean <option>            Make clean/dirty, description in below
   -n, --name <rom name>           Define rom name, it will help to detect name file for upload
-  --timer <..s/m/h>           Define timer to limit time when building (ex: 1m)
+  --timer <..s/m/h>               Define timer to limit time when building (ex: 1m)
   -L                              Show lunch command only, dont start  the build
   -h, --help                      Show usage
   -v, --version                   Show version
@@ -52,15 +52,15 @@ Telegram:
   --send-file-tg, --sft <path file>   Send file to telegram
 
 Upload:
-  -u, --upload <wet|trs|fio>       Upload rom after finished build
+  -u, --upload <wet|gof|trs|fio>   Upload rom after finished build
   --upload-rom-latest, --url       Upload latest rom from result folder
   --upload-file <file>             Upload file only and exit
 
 CCache:
-  --ccache-dir <dir path>         Set custom directory for ccache
-  --ccache-size <..K/M/G>         Set custom size, (default: 50G)
+  --ccache-dir <dir path>          Set custom directory for ccache
+  --ccache-size <..K/M/G>          Set custom size, (default: 50G)
 
-Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs>
+Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs> and gofile<gof>
        [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument
 
 Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu
