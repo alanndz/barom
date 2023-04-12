@@ -489,7 +489,7 @@ TIME_END=$(date +%s)
 [[ -n $TIMER ]] && kill $sleep_pid &> /dev/null
 
 # Kill progress &
-[[ -n $BOT ]] && kill $progress_pid
+[[ -n $BOT ]] && kill $progress_pid &> /dev/null
 
 # Time elapsed
 t_() { echo "$(date -u --date @$(($TIME_END - $TIME_START)) +%H:%M:%S)"; }
