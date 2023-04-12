@@ -423,7 +423,7 @@ XCACHE=$(Config.ccdir)
 XSIZE=$(Config.ccsize)
 
 # Preparing log record
-mkfifo filunch fibuild 2&> /dev/null
+mkfifo filunch fibuild &> /dev/null
 tee "$LOG_LUNCH" < filunch &
 tee "$LOG_BUILD" < fibuild &
 
