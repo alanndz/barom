@@ -74,25 +74,26 @@ repoSync() {
 }
 
 fixErrorSync() {
-    local a=$(grep 'Cannot remove project' "$TMP_SYNC" -m1 || true)
-    local b=$(grep "^fatal: remove-project element specifies non-existent project" "$TMP_SYNC" -m1 || true)
-    local c=$(grep 'repo sync has finished' "$TMP_SYNC" -m1 || true)
-    local d=$(grep 'Failing repos:' "$TMP_SYNC" -n -m1 || true)
-    local e=$(grep 'fatal: Unable' "$TMP_SYNC" || true)
-    local f=$(grep 'error.GitError' "$TMP_SYNC" || true)
-    local g=$(grep 'error: Cannot checkout' "$TMP_SYNC" || true)
+    local a=$(grep 'Cannot remove project' "$TMP_SYNC" -m 1)
+    local b=$(grep "^fatal: remove-project element specifies non-existent project" "$TMP_SYNC" -m 1)
+    local c=$(grep 'repo sync has finished' "$TMP_SYNC" -m 1)
+    local d=$(grep 'Failing repos:' "$TMP_SYNC" -n -m 1)
+    local e=$(grep 'fatal: Unable' "$TMP_SYNC")
+    local f=$(grep 'error.GitError' "$TMP_SYNC")
+    local g=$(grep 'error: Cannot checkout' "$TMP_SYNC")
 
-    if [[ $a == *'Cannot remove project'* ]]
+    if [[ -n $a ]]
     then
         a=$(echo $a | cut -d ':' -f2 | tr -d ' ')
         rm -rf $a
     fi
 
-    if [[ $b == *'remove-project element specifies non-existent'* ]]
-    then exit 1
+    if [[ -n $b ]]
+    then 
+        exit 1
     fi
 
-    if [[ $d == *'Failing repos:'* ]]
+    if [[ -n $d ]]
     then
         d=$(expr $(grep 'Failing repos:' "$TMP_SYNC" -n -m 1| cut -d ':' -f1) + 1)
         d2=$(expr $(grep 'Try re-running' "$TMP_SYNC" -n -m1 | cut -d ':' -f1) - 1 )
@@ -106,7 +107,7 @@ fixErrorSync() {
         done
     fi
 
-    if [[ $e == *'fatal: Unable'* ]]
+    if [[ -n $e ]]
     then
         fail_paths=$(grep 'fatal: Unable' "$TMP_SYNC" | cut -d ':' -f2 | cut -d "'" -f2)
         for path in $fail_paths
@@ -119,12 +120,12 @@ fixErrorSync() {
         done
     fi
 
-    if [[ $f == *'error.GitError'* ]]
+    if [[ -n $f ]
     then
         rm -rf $(grep 'error.GitError' "$TMP_SYNC" | cut -d ' ' -f2)
     fi
 
-    if [[ $g == *'error: Cannot checkout'* ]]
+    if [[ -n $g ]]
     then
         coerr=$(grep 'error: Cannot checkout' "$TMP_SYNC" | cut -d ' ' -f 4| tr -d ':')
         for i in $coerr
