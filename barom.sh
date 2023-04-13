@@ -142,6 +142,14 @@ checkUpload() {
     echo $LIST | tr "$DELIMITER" '\n' | grep -F -q -x "$VALUE"
 }
 
+uploadGof() {
+    local FILE="@$1"
+    local SERVER=$(curl -s https://apiv2.gofile.io/getServer | jq  -r '.data|.server')
+    local UP=$(curl -F file=${FILE} https://${SERVER}.gofile.io/uploadFile)
+    local LINK=$(echo $UP | jq -r '.data|.downloadPage')
+    echo $LINK
+}
+
 upload() {
     TRS=$(transfer $1 $2)
 	local link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
@@ -526,7 +534,11 @@ bot_doc "$LOG_OK"
 if [[ -n $UPLOAD ]]
 then
     case $UPLOAD in
-        wet|gof|fio|trs)
+        gof)
+            link=$(uploadGof "$FILEPATH")
+            uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
+            ;;
+        wet|fio|trs)
             link=$(upload "$UPLOAD" "$FILEPATH")
             uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
             ;;
