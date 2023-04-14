@@ -16,9 +16,9 @@ telegram_curl() {
 	local HTTP_REQUEST=${1}
 	shift
 	if [ "$HTTP_REQUEST" != "POST_FILE" ]; then
-		curl -s -X $HTTP_REQUEST "https://api.telegram.org/bot$BOT_API_KEY/$ACTION" "$@" | jq . #&> /dev/null
+		curl -s -X $HTTP_REQUEST "https://api.telegram.org/bot$BOT_API_KEY/$ACTION" "$@" &> /dev/null
 	else
-		curl -s "https://api.telegram.org/bot$BOT_API_KEY/$ACTION" "$@" | jq . #&> /dev/null
+		curl -s "https://api.telegram.org/bot$BOT_API_KEY/$ACTION" "$@" &> /dev/null
 	fi
 }
 
@@ -83,24 +83,24 @@ bot_msg() {
 			for POST in "${@}"; do
 				echo "${POST}"
 			done
-		)" 2&> /dev/null
+		)"
 	fi
 }
 bot_doc() {
 	if [[ $BUILD -eq 1 && $BOT -eq 1 && -f $@ ]]
 	then
-		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID" 2&> /dev/null
+		tg_send_document --chat_id "$CHAT_ID" --document "$@" --reply_to_message_id "$CI_MESSAGE_ID"
 	fi
 }
 
 send_file() {
-	tg_send_document --chat_id "$CHAT_ID" --document "$@" 2&> /dev/null
+	tg_send_document --chat_id "$CHAT_ID" --document "$@"
 }
 
 bot() {
 	if [[ $BUILD -eq 1 && $BOT -eq 1 ]]
 	then
-		build_message "$@" 2&> /dev/null
+		build_message "$@"
 	fi
 }
 
@@ -116,7 +116,7 @@ CI_MESSAGE_ID=$(tg_send_message --chat_id "$CHAT_ID" --text "<b>========= Buildi
 <b>Upload:</b> ${UPLOAD:-None}<code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
-<b>Status:</b> $1" --parse_mode "html" | jq .result.message_id) #&> /dev/null
+<b>Status:</b> $1" --parse_mode "html" | jq .result.message_id)
 	else
 tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "<b>========= Building ROM =========</b>
 
@@ -128,7 +128,7 @@ tg_edit_message_text --chat_id "$CHAT_ID" --message_id "$CI_MESSAGE_ID" --text "
 <b>Upload:</b> ${UPLOAD:-None}<code></code>
 <b>Started at</b> <code>$(uname -a)</code>
 
-<b>Status:</b> $1" --parse_mode "html" #&> /dev/null
+<b>Status:</b> $1" --parse_mode "html"
 	fi
 }
 
