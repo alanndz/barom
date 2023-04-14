@@ -10,7 +10,7 @@ curl -sL https://git.io/JkItH | bash
 
 Alternative:
 ```
-wget -O barom https://git.io/JUjwP
+curl -Lo barom https://git.io/JUjwP
 chmod +x barom
 ./barom -h
 ```
