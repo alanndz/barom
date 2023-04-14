@@ -53,7 +53,7 @@ enc() { echo "$(openssl enc -base64 <<< $@)"; }
 # Pull telegram.sh
 [[ ! -f "$BIN/barom-telegram" ]] && curl -L -o "$BIN/barom-telegram" -s https://github.com/alanndz/barom/raw/main/telegram.sh
 [[ -f "$BIN/barom-telegram" ]] && source "$BIN/barom-telegram" || err "Error: file "$BIN/barom-telegram" not found, please check internet connection for download first"
-[[ ! -f "$BIN/transfer" ]] && curl -sL https://git.io/file-transfer | sh && mv transfer "$BIN"
+[[ ! -f "$BIN/wtclient" ]] && curl -sL https://github.com/aLnProject/barom-binary/raw/main/wtclient.sh | bash -s "$BIN"
 
 TMP_SYNC="sync-rom.log"
 
@@ -142,20 +142,31 @@ checkUpload() {
     echo $LIST | tr "$DELIMITER" '\n' | grep -F -q -x "$VALUE"
 }
 
-uploadGof() {
-    local FILE="@$1"
-    local SERVER=$(curl -s https://apiv2.gofile.io/getServer | jq  -r '.data|.server')
-    local UP=$(curl -F file=${FILE} https://${SERVER}.gofile.io/uploadFile)
-    local LINK=$(echo $UP | jq -r '.data|.downloadPage')
-    echo $LINK
-}
+uploadMain() {
+    case "$1" in
+        gof)
+            local FILE="@$2"
+            local SERVER=$(curl -s https://apiv2.gofile.io/getServer | jq  -r '.data|.server')
+            local UP=$(curl -F file=${FILE} https://${SERVER}.gofile.io/uploadFile)
+            local LINK=$(echo $UP | jq -r '.data|.downloadPage')
+            ;;
+        trs)
+            local FILE="$2"
+            local LINK=$(curl --upload-file "$FILE" https://transfer.sh/$(basename "$FILE") | tee /dev/null)
+            ;;
+        fio)
+            local FILE="@$2"
+            # Expired 3 weeks, set m/w/y
+            local LINK=$(curl -F file=${FILE} https://file.io/\?expires=3w | jq -r '.link')
+            ;;
+        wet)
+            local FILE="$2"
+            local LINK=$(wtclient upload "$FILE" | grep "https" | cut -d " " -f 5)
+            ;;
+    esac
+    [[ -z "$LINK" ]] && return 1
 
-upload() {
-    TRS=$(transfer $1 $2)
-	local link=$(echo "$TRS" | grep "Download" | cut -d" " -f3)
-	[[ "$1" == "gof" ]] && link=$(echo "$link" | sed "s|?c=|d/|")
-
-    echo "$link"
+    echo "$LINK"
 }
 
 usage() {
@@ -194,15 +205,18 @@ usage() {
     prin "  --send-file-tg, --sft <path file>   Send file to telegram"
     prin
     prin "Upload:"
-    prin "  -u, --upload <wet|gof|trs|fio>   Upload rom after finished build"
+    prin "  -u, --upload <host>              Upload rom after finished build"
     prin "  --upload-rom-latest, --url       Upload latest rom from $RESULT folder"
-    prin "  --upload-file <file>             Upload file only and exit"
+    prin "  --upload-file <host> <file>      Upload file only and exit"
     prin 
     prin "CCache:"
     prin "  --ccache-dir <dir path>          Set custom directory for ccache"
     prin "  --ccache-size <..K/M/G>          Set custom size, (default: 50G)"
     prin
-    prin "Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs> and gofile<gof>"
+    prin "Notes: [!] Host upload supported: wet: wetransfer"
+    prin "                                  gof: gofile.io"
+    prin "                                  fio: file.io"
+    prin "                                  trs: transfer.sh"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
     prin "Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu"
@@ -331,8 +345,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         --upload-rom-latest|--url)
             FILEPATH=$(ls -Art $RESULT/*.zip | tail -1)
-            dbg "Uploading $FILEPATH"
-            upload gof "$FILEPATH"
+            link=$(uploadMain wet "$FILEPATH") || link=$(uploadMain gof "$FILEPATH")
+            dbg "Rom uploaded to $link"
             exit
             ;;
         --upload-rom-file)
@@ -340,12 +354,13 @@ while [[ $# -gt 0 ]]; do
             exit
             ;;
         --upload-file)
-            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-                link=$(upload gof "$2")
+            if [ -n "$2" ] && [ -n "$3" ] && [ ${2:0:1} != "-" ]; then
+                checkUpload "$2" || err "Error: Upload to $2 not supported"
+                link=$(uploadMain "$2" "$3") || err "Failed upload"
                 dbg "Uploaded to $link"
                 shift
             else
-                err "Error: Argument for $1 is missing or more/less than 1 argument"
+                err "Error: Argument for $1 is missing or more/less than 2 argument"
             fi
             exit
             ;;
@@ -533,19 +548,8 @@ bot_doc "$LOG_OK"
 
 if [[ -n $UPLOAD ]]
 then
-    case $UPLOAD in
-        gof)
-            link=$(uploadGof "$FILEPATH")
-            uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
-            ;;
-        wet|fio|trs)
-            link=$(upload "$UPLOAD" "$FILEPATH")
-            uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
-            ;;
-        *)
-            err "Whops, upload other than wet|gof|trs|fio not supported"
-            ;;
-    esac
+    link=$(uploadMain "$UPLOAD" "$FILEPATH")
+    uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
 fi
 
 # Move ROM to $RESULT
