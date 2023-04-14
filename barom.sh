@@ -548,7 +548,7 @@ bot_doc "$LOG_OK"
 
 if [[ -n $UPLOAD ]]
 then
-    link=$(uploadMain "$UPLOAD" "$FILEPATH")
+    link=$(uploadMain "$UPLOAD" "$FILEPATH") || link=$(uploadMain gof "$FILEPATH")
     uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
 fi
 
