@@ -52,15 +52,18 @@ Telegram:
   --send-file-tg, --sft <path file>   Send file to telegram
 
 Upload:
-  -u, --upload <wet|gof|trs|fio>   Upload rom after finished build
+  -u, --upload <host>              Upload rom after finished build
   --upload-rom-latest, --url       Upload latest rom from result folder
-  --upload-file <file>             Upload file only and exit
+  --upload-file <host> <file>      Upload file only and exit
 
 CCache:
   --ccache-dir <dir path>          Set custom directory for ccache
   --ccache-size <..K/M/G>          Set custom size, (default: 50G)
 
-Notes: [!] For upload, for now just support wetransfer<wet> fileio<fio> transfer<trs> and gofile<gof>
+Notes: [!] Host upload supported: wet: wetransfer
+                                  gof: gofile.io
+                                  fio: file.io
+                                  trs: transfer.sh
        [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument
 
 Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu
