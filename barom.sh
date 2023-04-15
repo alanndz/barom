@@ -14,7 +14,7 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-for dep in git env basename mkdir rm mkfifo jq ccache openssl curl repo expect
+for dep in git env basename mkdir rm mkfifo jq ccache openssl curl repo
 do
    ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
 done
@@ -150,6 +150,7 @@ uploadSf() {
     local SF_PATH="$(Config.sfpath)"
 
     [[ -z $SF_USER || -z $SF_PW || -z $SF_PATH ]] && dbg "Sourceforge username/password/path empty, set first!" && return 1
+    command -v expect &> /dev/null || return 1
 
 {
     /usr/bin/expect << EOF
