@@ -318,7 +318,10 @@ while [[ $# -gt 0 ]]; do
         -u|--upload)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 UPLOAD="$2"
-                checkUpload "$UPLOAD" || err "Error: Upload to $UPLOAD not supported"
+                for i in $UPLOAD
+                do
+                    checkUpload "$i" || err "Error: Upload to $i not supported"
+                done
                 shift
             else
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
@@ -548,8 +551,11 @@ bot_doc "$LOG_OK"
 
 if [[ -n $UPLOAD ]]
 then
-    link=$(uploadMain "$UPLOAD" "$FILEPATH") || link=$(uploadMain gof "$FILEPATH")
-    uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
+    for i in $UPLOAD
+    do
+        link=$(uploadMain "$i" "$FILEPATH") || link=$(uploadMain gof "$FILEPATH")
+        uploader_msg "$FILENAME" "$link" "$FILESUM" "$FILESIZE"
+    done
 fi
 
 # Move ROM to $RESULT
