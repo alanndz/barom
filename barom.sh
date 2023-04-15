@@ -14,7 +14,7 @@ red() { echo -e "\e[91m$@\e[39m"; }
 prin() { echo -e "$@"; }
 
 # Checking dependencies
-for dep in git env basename mkdir rm mkfifo jq ccache openssl curl repo
+for dep in git env basename mkdir rm mkfifo jq ccache openssl curl repo expect
 do
    ! command -v "$dep" &> /dev/null && err "Unable to locate dependency $dep. Exiting."
 done
@@ -136,10 +136,45 @@ fixErrorSync() {
 }
 
 checkUpload() {
-    local LIST="wet gof fio trs"
+    local LIST="wet gof fio trs sf"
     local DELIMITER=" "
     local VALUE=$1
     echo $LIST | tr "$DELIMITER" '\n' | grep -F -q -x "$VALUE"
+}
+
+uploadSf() {
+    local FILEPATH="$1"
+    local FILENAME="$(basename $FILEPATH)"
+    local SF_USER="$(dnc `Config.sfuser`)"
+    local SF_PW="$(dnc `Config.sfpass`)"
+    local SF_PATH="$(Config.sfpath)"
+
+    [[ -z $SF_USER || -z $SF_PW || -z $SF_PATH ]] && dbg "Sourceforge username/password/path empty, set first!" && return 1
+
+{
+    /usr/bin/expect << EOF
+    set timeout 600
+    log_user 0
+    spawn scp "$FILEPATH" $SF_USER@frs.sourceforge.net:/home/frs/project/$SF_PATH/
+    expect {
+        *es/*o {
+            send "yes\r"; exp_continue
+        }
+        Password: {
+            send "$SF_PW\r"; exp_continue
+        }
+        timeout {
+            exit 1
+        }
+        eof {
+            exit 0
+        }
+    }
+EOF
+}
+    local ret=$?
+    [[ $ret -ne 0 ]] && return $ret
+    echo "https://sourceforge.net/projects/$SF_PATH/files/$FILENAME/download"
 }
 
 uploadMain() {
@@ -162,6 +197,10 @@ uploadMain() {
         wet)
             local FILE="$2"
             local LINK=$(wtclient upload "$FILE" | grep "https" | cut -d " " -f 5)
+            ;;
+        sf)
+            local FILE="$2"
+            local LINK=$(uploadSf "$FILE")
             ;;
     esac
     [[ -z "$LINK" ]] && return 1
@@ -366,6 +405,16 @@ while [[ $# -gt 0 ]]; do
                 err "Error: Argument for $1 is missing or more/less than 2 argument"
             fi
             exit
+            ;;
+        -s|--sourceforge)
+            if [ -n "$2" ] && [ -n "$3" ] && [ -n "$4" ] && [ ${2:0:1} != "-" ]; then
+                Config.sfuser "$(enc $2)"
+                Config.sfpass "$(enc $3)"
+                Config.sfpath "$4"
+                shift 3
+            else
+                err "Error: Argument for $1 is missing or more/less than 3 argument"
+            fi
             ;;
         --ccache-dir)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
