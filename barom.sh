@@ -245,9 +245,10 @@ usage() {
     prin "  --send-file-tg, --sft <path file>   Send file to telegram"
     prin
     prin "Upload:"
-    prin "  -u, --upload <host>              Upload rom after finished build"
-    prin "  --upload-rom-latest, --url       Upload latest rom from $RESULT folder"
-    prin "  --upload-file <host> <file>      Upload file only and exit"
+    prin "  -u, --upload <host>                         Upload rom after finished build"
+    prin "  -s, --sourceforge <user> <password> <path>  Set credential for upload to sourceforge"
+    prin "  --upload-rom-latest, --url                  Upload latest rom from $RESULT folder"
+    prin "  --upload-file <host> <file>                 Upload file only and exit"
     prin 
     prin "CCache:"
     prin "  --ccache-dir <dir path>          Set custom directory for ccache"
