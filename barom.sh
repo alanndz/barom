@@ -73,6 +73,17 @@ repoSync() {
     return $ret
 }
 
+genRandom() {
+    local random=""
+    if [[ -f /dev/urandom ]]
+    then
+        random=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+    else
+        random=$(($RANDOM + 50 / 3))
+    fi
+    echo "$random"
+}
+
 fixErrorSync() {
     local a=$(grep 'Cannot remove project' "$TMP_SYNC" -m 1)
     local b=$(grep "^fatal: remove-project element specifies non-existent project" "$TMP_SYNC" -m 1)
