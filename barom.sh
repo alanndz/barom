@@ -43,6 +43,7 @@ Config.sfpass() { git config -f "$CONF" sourceforge.pass "$@"; }
 Config.sfpath() { git config -f "$CONF" sourceforge.path "$@"; }
 Config.ccdir() { git config -f "$CONF" ccache.dir "$@"; }
 Config.ccsize() { git config -f "$CONF" ccache.size "$@"; }
+Config.key() { git config -f "$BIN/baromconfig" keys.key "$@"; }
 
 ##### End Setup Config #####
 export PATH="$BIN:/usr/lib/ccache:$PATH"
@@ -75,13 +76,24 @@ repoSync() {
 
 genRandom() {
     local random=""
-    if [[ -f /dev/urandom ]]
+    if [[ -e /dev/urandom ]]
     then
         random=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
     else
         random=$(($RANDOM + 50 / 3))
     fi
     echo "$random"
+}
+
+_enc() {
+    [[ -n "$(Config.key)" ]] || Config.key "$(genRandom)"
+    local k=$(echo "$1" | openssl enc -e -des3 -base64 -pass pass:`Config.key` -pbkdf2)
+    echo "$k"
+}
+
+_dnc() {
+    local k=$(echo "$1" | openssl enc -d -des3 -base64 -pass pass:`Config.key` -pbkdf2)
+    echo "$k"
 }
 
 fixErrorSync() {
