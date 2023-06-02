@@ -370,11 +370,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--telegram)
             if [[ -n "$2" && -n "$3" && ${2:1:1} -eq ${2:1:1} ]]; then
+                red "[Warning] Using password in command line interface can be insecure."
                 Config.tgid "$(enc $2)"
                 Config.tgtoken "$(enc $3)"
                 shift 2
             else
-                err "Error: Argument for $1 is missing or more/less than 2 argument"
+                read -s -p "Enter telegram id: " tgid
+                prin ""
+                read -s -p "Enter telegram token: " tgtoken
+                prin ""
+                [[ -z $tgid || -z $tgtoken ]] && err "Telegram id or telegram token is empty. Aborted!"
+                Config.tgid "$(enc $tgid)"
+                Config.tgtoken "$(enc $tgtoken)"
             fi
             ;;
         --send-file-tg|--sft)
