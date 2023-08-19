@@ -488,6 +488,9 @@ fi
 [[ -f build/envsetup.sh ]] || exit
 [[ -z $BUILD ]] && exit
 
+# Import envsetup.sh
+source build/envsetup.sh
+
 # Preparing Env before build
 ROM=$(Config.name)
 DEVICE=$(Config.device)
@@ -517,9 +520,6 @@ export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
 export CCACHE_DIR="${XCACHE:-$HOME/.ccache}"
 ccache -M ${XSIZE:-50G}
-
-# Import envsetup.sh
-source build/envsetup.sh
 
 # CLEAN
 if [[ "$CLEAN" == "full" ]]; then
