@@ -486,6 +486,7 @@ fi
 
 # Check file build/envsetup.sh, if false exit
 [[ -f build/envsetup.sh ]] || exit
+[[ -z $BUILD ]] && exit
 
 # Preparing Env before build
 ROM=$(Config.name)
@@ -540,7 +541,7 @@ elif [[ "$CLEAN" == "device" ]]; then
 	make deviceclean
 fi
 
-[[ -z $BUILD ]] && exit
+
 
 # LUNCH
 bot "lunch $(Config.lunch)"
