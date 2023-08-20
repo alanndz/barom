@@ -135,10 +135,52 @@ fixErrorSync() {
     fi
 }
 
+setupGdrive() {
+    if command -v gdrive &> /dev/null; then
+        if [[ -d $HOME/.config/gdrive3 ]]; then
+            read -p "Gdrive already installed and gdrive account already configured, Continue [Y/n] " rrr
+            case ${rrr,,} in
+                n|no)
+                    exit
+                    ;;
+            esac
+        fi
+    fi
+
+    rm -f /tmp/gdrive_linux-x64.tar.gz
+    curl -L -o /tmp/gdrive_linux-x64.tar.gz https://github.com/glotlabs/gdrive/releases/download/3.9.0/gdrive_linux-x64.tar.gz
+    [[ -f /tmp/gdrive_linux-x64.tar.gz ]] || err "Gdrive not downloaded. Try again"
+    tar -xf /tmp/gdrive_linux-x64.tar.gz -C /tmp/
+
+    if [[ "$1" == "system" ]]; then
+        echo $1
+        sudo install /tmp/gdrive /usr/local/bin/gdrive
+    else
+        mv /tmp/gdrive $BIN
+    fi
+
+    prin
+    read -p "Do you want to add account gdrive? [Y/n] " res
+    prin
+    case ${res,,} in
+        y|ye|yes)
+            gdrive account add ;;
+        *)
+            prin
+            ;;
+    esac
+}
+
 checkUpload() {
-    local LIST="wet gof fio trs sf"
+    local LIST="wet gof fio trs sf gd"
     local DELIMITER=" "
     local VALUE=$1
+    if [[ "$VALUE" == "gd" ]]; then
+        if ! command -v gdrive &> /dev/null; then
+            err "Gdrive not installed, --setup-gdrive first"
+        fi
+    fi
+
     echo $LIST | tr "$DELIMITER" '\n' | grep -F -q -x "$VALUE"
 }
 
@@ -203,6 +245,11 @@ uploadMain() {
             local FILE="$2"
             local LINK=$(uploadSf "$FILE")
             ;;
+        gd)
+            local FILE="$2"
+            local LINK=$(gdrive files upload "$FILE" | grep ViewUrl | cut -d " " -f 2)
+            ;;
+
     esac
     [[ -z "$LINK" ]] && return 1
 
@@ -249,7 +296,11 @@ usage() {
     prin "  -s, --sourceforge <user> <password> <path>  Set credential for upload to sourceforge"
     prin "  --upload-rom-latest, --url                  Upload latest rom from $RESULT folder"
     prin "  --upload-file <host> <file>                 Upload file only and exit"
-    prin 
+    prin
+    prin "Google Drive:"
+    prin "  --setup-gdrive                   Install gdrive to local, only use for barom"
+    prin "  --setup-gdrive system            Install gdrive to system"
+    prin
     prin "CCache:"
     prin "  --ccache-dir <dir path>          Set custom directory for ccache"
     prin "  --ccache-size <..K/M/G>          Set custom size, (default: 50G)"
@@ -258,6 +309,7 @@ usage() {
     prin "                                  gof: gofile.io"
     prin "                                  fio: file.io"
     prin "                                  trs: transfer.sh"
+    prin "                                  gd: gdrive"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
     prin "Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu"
@@ -442,6 +494,15 @@ while [[ $# -gt 0 ]]; do
             else
                 err "Error: Argument for $1 is missing or more/less than 1 argument"
             fi
+            ;;
+        --setup-gdrive)
+            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+                [[ "$2" == "system" ]] || err "Must use system or empty"
+                setupGdrive system
+                exit
+            fi
+            setupGdrive
+            exit
             ;;
         -v|--version)
             prin "$NAME $VERSION by alanndz"
