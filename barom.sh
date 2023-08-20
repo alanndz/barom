@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 NAME="Barom"
-VERSION="2.2"
+VERSION="2.3"
 cwd=$(pwd)
 
 dbg() { echo -e "\e[92m[*] $@\e[39m"; }
