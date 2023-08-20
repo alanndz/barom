@@ -63,13 +63,10 @@ repoInit() {
 }
 
 repoSync() {
-    mkfifo sync &> /dev/null
-    tee "$TMP_SYNC" < sync &
     local custom="$@"
     local jobs=$(Config.jobs)
-    repo sync --no-tags --no-clone-bundle --current-branch -j${jobs:-$(nproc --all)} $custom > sync
+    repo sync --no-tags --no-clone-bundle --current-branch -j${jobs:-$(nproc --all)} $custom 2>&1 | tee $TMP_SYNC
     local ret=$?
-    rm sync
     return $ret
 }
 
