@@ -7,11 +7,11 @@ import os
 import subprocess
 from time import sleep
 
-n = '\r\n'
+n = '\n'
 Cwd = os.getcwd()
 tmpLog = '/tmp/barom.log'
 tmpLogError = '/tmp/barom_error.log'
-Cmd = '#!/usr/bin/env bash' + n + 'source build/envsetup.sh'
+Cmd = '#!/usr/bin/env bash' + n + 'source build/envsetup.sh' + n
 DirCmd = os.path.join(Cwd, '.baromexec') 
 cfile = os.path.join(Cwd, '.barompyconfig')
 
@@ -190,6 +190,8 @@ def ParserArgs():
     return opt, arg
 
 def main(argv):
+    global Cmd
+
     opt, arg = ParserArgs()
 
     conf.writeConf(opt, arg)
@@ -220,12 +222,30 @@ def main(argv):
         ret = run_command(cmd.split())
 
     if opt.build:
+        # Ccache
+        if conf.ccache_use == 'yes':
+            Cmd += 'export CCACHE_EXEC=$(which ccache)' + n
+            Cmd += 'export USE_CCACHE=1' + n
+            Cmd += 'export CCACHE_DIR="' + conf.ccache_path + '"' + n
+            Cmd += 'ccache -M ' + conf.ccache_size + n
+
+        # Clean
+        if opt.clean == 'dirty':
+            Cmd += 'make installclean' + n
+        elif opt.clean == 'clean':
+            Cmd += 'make clean' + n
+        elif opt.clean == 'device'
+            Cmd += 'make deviceclean' + n
+        elif opt.clean == 'full'
+            Cmd += 'make clobber' + n
+            Cmd += 'make clean' + n
+
         f = open(DirCmd, 'w')
         f.write(Cmd)
         f.close()
-        ret = run_command(['bash', DirCmd])
-        print('Exit code', ret.returncode)
-        print(ret.stderr)
+        #ret = run_command(['bash', DirCmd])
+        #print('Exit code', ret.returncode)
+        #print(ret.stderr)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
