@@ -246,6 +246,10 @@ uploadMain() {
             local FILE="$2"
             local LINK=$(gdrive files upload "$FILE" | grep ViewUrl | cut -d " " -f 2)
             ;;
+        pd)
+            local FILE="$2"
+            local LINK=$(curl -T "$FILE" https://pixeldrain.com/api/file/ | cut -d '"' -f 4)
+            ;;
 
     esac
     [[ -z "$LINK" ]] && return 1
@@ -307,6 +311,7 @@ usage() {
     prin "                                  fio: file.io"
     prin "                                  trs: transfer.sh"
     prin "                                  gd: gdrive"
+    prin "                                  pd: pixeldrain"
     prin "       [!] Dont use --upload-rom-latest, --upload-file, --send-file-tg with other option/argument"
     prin
     prin "Example: barom -b -d vayu -l vayu-user -c clean -n BiancaProject -u wet -- m dudu"
