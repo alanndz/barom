@@ -248,7 +248,8 @@ uploadMain() {
             ;;
         pd)
             local FILE="$2"
-            local LINK=$(curl -T "$FILE" https://pixeldrain.com/api/file/ | cut -d '"' -f 4)
+            local UP=$(curl -T "$FILE" https://pixeldrain.com/api/file/ | cut -d '"' -f 4)
+            local LINK="https://pixeldrain.com/u/$UP"
             ;;
 
     esac
