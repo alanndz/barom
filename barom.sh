@@ -653,6 +653,9 @@ then
     err "Error: ${CMD[@]} failed with exit code $ret"
 fi
 
+# Cleaning 
+rm -f fibuild filunch
+
 # Build success
 bot "Build success"
 ROM=$(Config.name)
@@ -681,8 +684,5 @@ fi
 # Move ROM to $RESULT
 mv "$FILEPATH" "$RESULT"
 dbg "ROM moved to $RESULT/$FILENAME"
-
-# Cleaning 
-rm -f fibuild filunch
 
 exit $ret
