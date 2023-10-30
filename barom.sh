@@ -668,7 +668,7 @@ ROM=$(Config.name)
 FILEPATH=$(ls -Art ${O}/${ROM}*${DEVICE}*.zip | tail -1)
 [[ -z $ROM ]] && FILEPATH=$(ls -Art ${O}/*.zip | tail -1)
 
-[[ -f $FILEPATH ]] && err "Failed get file rom! Exited!"
+[[ -f $FILEPATH ]] || err "Failed get file rom! Exited!"
 
 FILENAME=$(basename "$FILEPATH")
 FILESUM=$(md5sum "$FILEPATH" | cut -f1 -d" ")
