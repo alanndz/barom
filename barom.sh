@@ -169,7 +169,7 @@ setupGdrive() {
 }
 
 checkUpload() {
-    local LIST="wet gof fio trs sf gd"
+    local LIST="wet gof fio trs sf gd pd"
     local DELIMITER=" "
     local VALUE=$1
     if [[ "$VALUE" == "gd" ]]; then
