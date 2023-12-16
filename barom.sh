@@ -346,7 +346,7 @@ while [[ $# -gt 0 ]]; do
             fi
             RESYNC=1
             ;;
-        --init-flags|--ifags)
+        --init-flags|--iflags)
             if [ -n "$2" ]; then
                 Config.iflags "$2"
                 shift
